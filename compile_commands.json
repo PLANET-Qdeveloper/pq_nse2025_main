@@ -1,0 +1,266 @@
+[
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/main.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/main.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/main.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/main.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/gpio.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/gpio.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/gpio.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/gpio.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/adc.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/adc.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/adc.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/adc.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/fdcan.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/fdcan.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/fdcan.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/fdcan.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/i2c.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/i2c.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/i2c.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/i2c.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/memorymap.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/memorymap.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/memorymap.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/memorymap.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/octospi.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/octospi.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/octospi.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/octospi.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/rtc.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/rtc.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/rtc.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/rtc.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/spi.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/spi.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/spi.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/spi.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/tim.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/tim.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/tim.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/tim.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/usart.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/usart.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/usart.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/usart.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/stm32h5xx_it.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/stm32h5xx_it.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/stm32h5xx_it.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/stm32h5xx_it.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/stm32h5xx_hal_msp.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/stm32h5xx_hal_msp.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/stm32h5xx_hal_msp.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/stm32h5xx_hal_msp.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/sysmem.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/sysmem.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/sysmem.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/sysmem.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles/pq_nse2025_main.dir/Core/Src/syscalls.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/syscalls.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/syscalls.c",
+  "output": "CMakeFiles/pq_nse2025_main.dir/Core/Src/syscalls.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -x assembler-with-cpp -MMD -MP -g -o CMakeFiles/pq_nse2025_main.dir/startup_stm32h523xx.s.obj -c /Users/genta/pq_nse2025_main/startup_stm32h523xx.s",
+  "file": "/Users/genta/pq_nse2025_main/startup_stm32h523xx.s",
+  "output": "CMakeFiles/pq_nse2025_main.dir/startup_stm32h523xx.s.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32h5xx.c.obj -c /Users/genta/pq_nse2025_main/Core/Src/system_stm32h5xx.c",
+  "file": "/Users/genta/pq_nse2025_main/Core/Src/system_stm32h5xx.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32h5xx.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_adc_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_dma_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rcc_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_flash_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_gpio.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_gpio.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_gpio.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_gpio.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_pwr_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_cortex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_cortex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_cortex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_cortex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_exti.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_exti.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_exti.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_exti.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_fdcan.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_fdcan.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_fdcan.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_fdcan.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_xspi.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_xspi.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_xspi.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_xspi.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_dlyb.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_dlyb.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_dlyb.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_ll_dlyb.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_rtc_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_tim_ex.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart.c.obj"
+},
+{
+  "directory": "/Users/genta/pq_nse2025_main",
+  "command": "/opt/ST/STM32CubeCLT_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc -DDEBUG -DSTM32H523xx -DUSE_HAL_DRIVER -I/Users/genta/pq_nse2025_main/Core/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc -I/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Inc/Legacy -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Device/ST/STM32H5xx/Include -I/Users/genta/pq_nse2025_main/Drivers/CMSIS/Include  -mcpu=cortex-m33 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart_ex.c.obj -c /Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart_ex.c",
+  "file": "/Users/genta/pq_nse2025_main/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart_ex.c",
+  "output": "cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart_ex.c.obj"
+}
+]

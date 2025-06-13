@@ -1,0 +1,123 @@
+# CMake generated files
+.cache
+build/
+Build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+Drivers/*
+
+# STM32 compiled output
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+*.lss
+*.sym
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# STM32CubeIDE
+.metadata/
+.project
+.cproject
+.settings/
+Debug/
+Release/
+
+# Keil uVision
+*.uvguix.*
+*.uvoptx
+*.uvprojx
+*.plg
+*.tra
+*.dep
+*.crf
+*.d
+*.axf
+*.htm
+*.lnp
+*.bak
+*.tmp
+
+# IAR EWARM
+Debug/
+Release/
+settings/
+*.dep
+*.ewd
+*.ewp
+*.eww
+*.dni
+*.wsdt
+*.dbgdt
+*.wsp
+
+# Compiler specific
+*.i*86
+*.x86_64
+*.arm
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# Custom user files
+*.user
