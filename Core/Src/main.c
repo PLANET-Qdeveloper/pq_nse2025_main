@@ -31,7 +31,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "flash.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +44,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define NUMBER_OF_FILES        8                                       // max 32
+#define FILE_SIZE            8192
+#define FILE_DEBUG            1                                        // Show test file messages, disable for benchmark
+
 
 /* USER CODE END PD */
 
@@ -52,7 +59,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static uint32_t tick_count = 0;  // Simple tick counter for benchmarking
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,7 +81,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+    setbuf(stdout, NULL);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -110,13 +117,178 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+  
+  // Flash memory and LittleFS test code
+  const char* fn_templ1 = "F%u.tst";
+  const char* fn_templ2 = "R%u.tst";
+  char fn[32], fn2[32];
+  uint8_t buffer[FILE_SIZE]={0};
+  lfs_file_t fp;
+  uint32_t starttime, runtime;
 
+  
+  printf("\n\nOCTOSPI Flash Test, CPU clk=%luMHz\n", HAL_RCC_GetSysClockFreq()/1000000);
+  // Initialize XSPI Flash
+  if (CSP_XSPI_Init() != HAL_OK) {
+      printf("*** CSP_XSPI_INIT Failed\n");
+      Error_Handler();
+  }
+  
+  HAL_Delay(100);
+  
+  printf("\nlittlefs version  = %x\n", LFS_VERSION);
+  
+  // Read Flash ID
+  uint32_t id=0;
+  XSPI_ReadID(&id);
+  printf("Flash Identifier  = 0x%08lx\n", id);
+  
+  // Read Unique ID
+  uint8_t uid[8]={0};
+  XSPI_ReadUniqueID(uid);
+  printf("64bits Identifier = 0x");
+  for (int i=0; i<8; i++) printf("%02x", uid[i]);
+  printf("\n");
+  
+  // Read SFDP Table
+  printf("\nRead SFDP Table:\n");
+  uint8_t sfdp[256]={0};
+  XSPI_ReadSFDP(sfdp);
+  printf("%2c %2c %2c %2c ", sfdp[0], sfdp[1], sfdp[2], sfdp[3]);
+  for (int i=4; i<256; i++) {
+      if (i%32==0) printf("\n");
+      printf("%02x ", sfdp[i]);
+  }
+  printf("\n\n");
+  
+  // Optional: Erase entire chip (uncomment if needed)
+  // printf("Erasing Chip.....\n");
+  // if (CSP_XSPI_Erase_Chip() != HAL_OK) {
+  //     printf("*** CSP_XSPI_Erase_Chip Failed\n");
+  //     Error_Handler();
+  // }
+  // printf("Chip Erased\n");
+  
+  // Start Timer for benchmarking (using system tick)
+  HAL_TIM_Base_Start_IT(&htim1);
+  
+  // Test timer accuracy
+  starttime = HAL_GetTick();
+  HAL_Delay(500);
+  runtime = HAL_GetTick() - starttime;
+  if (runtime != 500) printf("Timer clock incorrect? expected 500 got %lu\n", runtime);
+  
+  printf("\n\nMount littlfs and start timer\n\n");
+  starttime = HAL_GetTick();  // Start benchmark timer
+  
+  // Mount filesystem with format
+  stmlfs_mount(true);
+  
+  //---------------------------------------------------------------------------------------------
+  // We'll create NUMBER_OF_FILES files, verify them, rename them, reverify, and delete them.
+  //---------------------------------------------------------------------------------------------
+  for (int i = 0; i < NUMBER_OF_FILES; i++) {
+      sprintf(fn, fn_templ1, i);  // Create file name string
+      memset(buffer, i, FILE_SIZE);
+      
+      int err = stmlfs_file_open(&fp, fn, LFS_O_WRONLY | LFS_O_CREAT);  // Create the file
+      if (err < 0) {
+          printf("open failed\n");
+          Error_Handler();
+      }
+      
+      printf("Write to File %s\n", fn);
+      uint32_t wrsize = (uint32_t)stmlfs_file_write(&fp, buffer, FILE_SIZE);  // Write the file
+      if (FILE_SIZE != wrsize) {
+          printf("write fails, %lu bytes written out of %d\n", wrsize, FILE_SIZE);
+          Error_Handler();
+      }
+      
+      if (stmlfs_file_close(&fp) < 0) {  // flush and close the file
+          printf("close failed\n");
+          Error_Handler();
+      }
+  }
+  
+  #ifdef FILE_DEBUG
+      dump_dir();  // Show directory
+  #endif
+  
+  stmlfs_unmount();  // Unmount & remount
+  stmlfs_mount(false);
+  
+  struct littlfs_fsstat_t stat;  // Display file system sizes
+  stmlfs_fsstat(&stat);
+  printf("FS: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
+  
+  // Rename files test
+  for (int i = 0; i < NUMBER_OF_FILES; i++) {
+      sprintf(fn, fn_templ1, i);
+      sprintf(fn2, fn_templ2, i);
+      
+      printf("Rename from %s to %s\n", fn, fn2);
+      if (stmlfs_rename(fn, fn2) < 0) {  // rename
+          printf("rename failed\n");
+          fflush(stdout);
+          Error_Handler();
+      }
+  }
+  
+  #ifdef FILE_DEBUG
+      dump_dir();  // Show directory
+  #endif
+  
+  stmlfs_fsstat(&stat);  // Display file system sizes
+  printf("FS: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
+  
+  // Read and verify files test
+  for (int i = 0; i < NUMBER_OF_FILES; i++) {
+      sprintf(fn, fn_templ1, i);
+      sprintf(fn2, fn_templ2, i);
+      
+      printf("Reopen Filename=%s\n", fn2);
+      int err = stmlfs_file_open(&fp, fn2, LFS_O_RDONLY);  // verify the file's content
+      if (err < 0) {
+          printf("lfs open failed\n");
+          Error_Handler();
+      } else {
+          stmlfs_file_read(&fp, buffer, FILE_SIZE);
+          bool err = false;
+          for (int j=0; j<FILE_SIZE; j++) if (buffer[j] != i) err = true;
+          if (err) printf("Read failed for %d\n", i);
+          stmlfs_file_close(&fp);
+          
+          if (stmlfs_remove(fn2) < 0) {  // Delete the file
+              printf("remove failed\n");
+              Error_Handler();
+          } else printf("File %s removed\n", fn2);
+      }
+  }
+  
+  #ifdef FILE_DEBUG
+      dump_dir();  // Show directory
+  #endif
+  
+  stmlfs_fsstat(&stat);  // Display file system sizes
+  printf("FS: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
+  
+  stmlfs_unmount();  // Release any resources we were using
+  
+  runtime = HAL_GetTick() - starttime;
+  printf("lfs test done, runtime %lu ms\n", runtime);
+  fflush(stdout);
+  
+  printf("\nEntering standby mode...\n");
+  HAL_PWR_EnterSTANDBYMode();  // System stops here
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      // Simple delay loop if system doesn't enter standby
+      HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -357,6 +529,17 @@ void Set_OSPI_MemoryMappedMode(void)
     }
 
 }
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+int _write(int file, char *ptr, int len)
+{
+  HAL_UART_Transmit(&huart4,(uint8_t *)ptr,len,10);
+  return len;
+}
+
 /* USER CODE END 4 */
 
 /**

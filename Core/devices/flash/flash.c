@@ -1,18 +1,16 @@
 #include "flash.h"
 
-
-lfs_t lfs;
-
+///#define qprintf printf
+#define qprintf(...) // do nothing
 
 extern XSPI_HandleTypeDef hospi1;
 #define W25Q_SPI hospi1
 
 static lfs_t lfs;
 
-static uint8_t QSPI_WriteEnable(void);
-uint8_t QSPI_AutoPollingMemReady(void);
-static uint8_t QSPI_Configuration(void);
-static uint8_t QSPI_ResetChip(void);
+static uint8_t XSPI_WriteEnable(void);
+uint8_t XSPI_AutoPollingMemReady(void);
+static uint8_t XSPI_Configuration(void);
 
 const struct lfs_config stmconfig = {
     // block device operations
@@ -53,14 +51,14 @@ int stmlfs_mount(bool format)
 {
 	int err=-1;
 
-	assert(FS_SIZE<16777216);										// Chip < 16Mbyte, change R/W to 32bits address
+	//assert(FS_SIZE<16777216);										// Chip < 16Mbyte, change R/W to 32bits address
 
     if (format) {
     	err=lfs_format(&lfs,&stmconfig);
-    	printf("lfs_format - returned: %d\n",err);
+    	qprintf("lfs_format - returned: %d\n",err);
     }
     err=lfs_mount(&lfs,&stmconfig);                              	// mount the filesystem
-    printf("lfs_mount  - returned: %d\n",err);
+    qprintf("lfs_mount  - returned: %d\n",err);
     return err;
 }
 
@@ -73,7 +71,7 @@ int stmlfs_hal_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off
 
     qprintf("stmlfs_hal_read(block=%ld off=%ld size=%ld), addr=0x%08lx\n",block,off,size,p);
 
-    if (CSP_QSPI_Read(buffer, p, size) != HAL_OK) {
+    if (CSP_XSPI_Read(buffer, p, size) != HAL_OK) {
     	return LFS_ERR_IO;
     }
 
@@ -87,18 +85,18 @@ int stmlfs_hal_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off
 
     qprintf("stmlfs_hal_prog(block=%ld off=%ld size=%ld), addr=0x%08lx\n",block,off,size,p);
 
-    if (CSP_QSPI_WriteMemory(((uint8_t *)buffer), p, size) != HAL_OK) {
+    if (CSP_XSPI_WriteMemory(((uint8_t *)buffer), p, size) != HAL_OK) {
     	return LFS_ERR_IO;
     }
 
 	#ifdef QSPIDEBUG
     uint8_t localbuf[FS_SECTOR_SIZE]={0};
-    printf("Read back and compare\n");
-    if (CSP_QSPI_Read(localbuf, p, size) != HAL_OK) return LFS_ERR_IO;
+    qprintf("Read back and compare\n");
+    if (CSP_XSPI_Read(localbuf, p, size) != HAL_OK) return LFS_ERR_IO;
 
     for (int i=0;i<size;i++) {
     	if (localbuf[i]!=((uint8_t *)buffer)[i]) {
-    		printf("**** Diff localbuf[%d]=%02x expected %02x\n",i,localbuf[i],((uint8_t *)buffer)[i]);
+    		qprintf("**** Diff localbuf[%d]=%02x expected %02x\n",i,localbuf[i],((uint8_t *)buffer)[i]);
     	}
     }
 	#endif
@@ -113,18 +111,18 @@ int stmlfs_hal_erase(const struct lfs_config *c, lfs_block_t block)
 
     qprintf("stmlfs_hal_erase(block=%ld), start_address=%lx end_address=%lx\n",block,p,p+c->block_size-1);
 
-    if (CSP_QSPI_EraseSector(p,p+c->block_size-1) != HAL_OK){
+    if (CSP_XSPI_EraseSector(p,p+c->block_size-1) != HAL_OK){
     	return LFS_ERR_IO;
     }
 
 	#ifdef QSPIDEBUG
 	uint8_t localbuf[FS_SECTOR_SIZE]={0};
-	printf("Read back and compare to 0xFF\n");
-	if (CSP_QSPI_Read(localbuf, p, c->block_size) != HAL_OK) return LFS_ERR_IO;
+	qprintf("Read back and compare to 0xFF\n");
+	if (CSP_XSPI_Read(localbuf, p, c->block_size) != HAL_OK) return LFS_ERR_IO;
 
 	for (int i=0;i<c->block_size;i++) {
 		if (localbuf[i]!=0xFF) {
-			printf("**** Diff localbuf[%d]=%02x expected 0xFF\n",i,localbuf[i]);
+			qprintf("**** Diff localbuf[%d]=%02x expected 0xFF\n",i,localbuf[i]);
 		}
 	}
 	#endif
@@ -315,31 +313,31 @@ void dump_dir(void)
 {
     int dir = stmlfs_dir_open("/");
     if (dir < 0) {
-    	printf("\nstmlfs_dir_open failed\n");
+    	qprintf("\nstmlfs_dir_open failed\n");
     	return;
     }
 
     struct lfs_info info;
     while (stmlfs_dir_read(dir, &info) > 0) {
-        printf("%16.16s ", info.name);
+        qprintf("%16.16s ", info.name);
         if (info.type==LFS_TYPE_REG) {
-            printf(" %04ld\n",info.size);
+            qprintf(" %04ld\n",info.size);
             // static const char *prefixes[] = {"", "K", "M", "G"};
             // for (int i = sizeof(prefixes)/sizeof(prefixes[0])-1; i >= 0; i--) {
             //     if (info.size >= (1 << 10*i)-1) {
-            //         printf("%*u%sB\n", 4-(i != 0), info.size >> 10*i, prefixes[i]);
+            //         qprintf("%*u%sB\n", 4-(i != 0), info.size >> 10*i, prefixes[i]);
             //         break;
             //     }
             // }
         } else {
-            printf("\n");
+            qprintf("\n");
         }
     }
     stmlfs_dir_close(dir);
 
     struct littlfs_fsstat_t stat;                                      // Show file system sizes
     stmlfs_fsstat(&stat);
-    printf("\nBlocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size,(int)stat.blocks_used);
+    qprintf("\nBlocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size,(int)stat.blocks_used);
 
 }
 
@@ -366,33 +364,33 @@ uint32_t lfs_crc(uint32_t crc, const void* buffer, size_t size) {
 // https://github.com/osos11-Git/STM32H743VIT6_Boring_TECH_QSPI
 //*************************************************************************************************
 
-/* QUADSPI init function */
-uint8_t CSP_QUADSPI_Init(void) {
+/* OCTOSPI init function */
+uint8_t CSP_XSPI_Init(void) {
 
-	//prepare QSPI peripheral for ST-Link Utility operations
-	hqspi.Instance = QUADSPI;
-	if (HAL_QSPI_DeInit(&hqspi) != HAL_OK) {
+	//prepare XSPI peripheral for ST-Link Utility operations
+	hospi1.Instance = OCTOSPI1;
+	if (HAL_XSPI_DeInit(&hospi1) != HAL_OK) {
 		return HAL_ERROR;
 	}
 
-	MX_QUADSPI_Init();
+	MX_OCTOSPI1_Init();
 
-	if (QSPI_ResetChip() != HAL_OK) {
+	if (XSPI_ResetChip() != HAL_OK) {
 		return HAL_ERROR;
 	}
 
 	HAL_Delay(1);
 
-	if (QSPI_AutoPollingMemReady() != HAL_OK) {
+	if (XSPI_AutoPollingMemReady() != HAL_OK) {
 		return HAL_ERROR;
 	}
 
-	if (QSPI_WriteEnable() != HAL_OK) {
+	if (XSPI_WriteEnable() != HAL_OK) {
 
 		return HAL_ERROR;
 	}
 
-	if (QSPI_Configuration() != HAL_OK) {
+	if (XSPI_Configuration() != HAL_OK) {
 		return HAL_ERROR;
 	}
 
@@ -400,30 +398,41 @@ uint8_t CSP_QUADSPI_Init(void) {
 
 }
 
-uint8_t CSP_QSPI_Erase_Chip(void) {
+uint8_t CSP_XSPI_Erase_Chip(void) {
 
 	XSPI_RegularCmdTypeDef hCommand;
 
-	if (QSPI_WriteEnable() != HAL_OK) {
+	if (XSPI_WriteEnable() != HAL_OK) {
 		return HAL_ERROR;
 	}
 
 	/* Erasing Sequence --------------------------------- */
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
 	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = CHIP_ERASE_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+    hCommand.Instruction = CHIP_ERASE_CMD;
+    hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_MAX_DELAY) != HAL_OK) {
+	if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
 
-	if (QSPI_AutoPollingMemReady() != HAL_OK) {
+	if (XSPI_AutoPollingMemReady() != HAL_OK) {
 		return HAL_ERROR;
 	}
 
@@ -431,158 +440,198 @@ uint8_t CSP_QSPI_Erase_Chip(void) {
 
 }
 
-uint8_t QSPI_AutoPollingMemReady(void) {
+uint8_t XSPI_AutoPollingMemReady(void) {
 
-	QSPI_CommandTypeDef sCommand = { 0 };
-	QSPI_AutoPollingTypeDef sConfig = { 0 };
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
+	XSPI_AutoPollingTypeDef sConfig = { 0 };
 	HAL_StatusTypeDef ret;
 
 	/* Configure automatic polling mode to wait for memory ready ------ */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_STATUS_REG_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = READ_STATUS_REG_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 1;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	sConfig.Match = 0x00;
-	sConfig.Mask = 0x01;
-	sConfig.MatchMode = QSPI_MATCH_MODE_AND;
-	sConfig.StatusBytesSize = 1;
-	sConfig.Interval = 0x10;
-	sConfig.AutomaticStop = QSPI_AUTOMATIC_STOP_ENABLE;
-	if ((ret = HAL_QSPI_AutoPolling(&hqspi, &sCommand, &sConfig,
-			HAL_MAX_DELAY)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+		return ret;
+	}
+
+	sConfig.MatchValue = 0x00;
+	sConfig.MatchMask = 0x01;
+	sConfig.MatchMode = HAL_XSPI_MATCH_MODE_AND;
+	sConfig.IntervalTime = 0x10;
+	sConfig.AutomaticStop = HAL_XSPI_AUTOMATIC_STOP_ENABLE;
+	if ((ret = HAL_XSPI_AutoPolling(&hospi1, &sConfig,
+			HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 	return HAL_OK;
 }
 
-static uint8_t QSPI_WriteEnable(void) {
-	QSPI_CommandTypeDef sCommand = { 0 };
-	QSPI_AutoPollingTypeDef sConfig = { 0 };
+static uint8_t XSPI_WriteEnable(void) {
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
+	XSPI_AutoPollingTypeDef sConfig = { 0 };
 	HAL_StatusTypeDef ret;
 
 	/* Enable write operations ------------------------------------------ */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = WRITE_ENABLE_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = WRITE_ENABLE_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
 	/* Configure automatic polling mode to wait for write enabling ---- */
-	sConfig.Match = 0x02;
-	sConfig.Mask = 0x02;
-	sConfig.MatchMode = QSPI_MATCH_MODE_AND;
-	sConfig.StatusBytesSize = 1;
-	sConfig.Interval = 0x10;
-	sConfig.AutomaticStop = QSPI_AUTOMATIC_STOP_ENABLE;
+	sConfig.MatchValue = 0x02;
+	sConfig.MatchMask = 0x02;
+	sConfig.MatchMode = HAL_XSPI_MATCH_MODE_AND;
+	sConfig.IntervalTime = 0x10;
+	sConfig.AutomaticStop = HAL_XSPI_AUTOMATIC_STOP_ENABLE;
 
-	sCommand.Instruction = READ_STATUS_REG_CMD;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
+	hCommand.Instruction = READ_STATUS_REG_CMD;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 1;
 
-	if ((ret = HAL_QSPI_AutoPolling(&hqspi, &sCommand, &sConfig,HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+		return ret;
+	}
+
+	if ((ret = HAL_XSPI_AutoPolling(&hospi1, &sConfig, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 	return HAL_OK;
 }
 
 
-uint8_t QSPI_Configuration(void) {
+uint8_t XSPI_Configuration(void) {
 
-	QSPI_CommandTypeDef sCommand = { 0 };
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
 	uint8_t reg;
 	HAL_StatusTypeDef ret;
 
 	/* Read Volatile Configuration register 2 --------------------------- */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_STATUS_REG2_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-	sCommand.NbData = 1;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = READ_STATUS_REG2_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 1;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,
-			HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand,
+			HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
-	if ((ret = HAL_QSPI_Receive(&hqspi, &reg, HAL_QPSI_TIMEOUT_DEFAULT_VALUE))
+	if ((ret = HAL_XSPI_Receive(&hospi1, &reg, HAL_XSPI_TIMEOUT_DEFAULT_VALUE))
 			!= HAL_OK) {
 		return ret;
 	}
 
 	/* Enable Volatile Write operations ---------------------------------------- */
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.Instruction = VOLATILE_SR_WRITE_ENABLE;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.Instruction = VOLATILE_SR_WRITE_ENABLE;
 
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+	if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 		return ret;
 	}
 
 	/* Write Volatile Configuration register 2 (QE = 1) -- */
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.Instruction = WRITE_STATUS_REG2_CMD;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 1;
+	hCommand.Instruction = WRITE_STATUS_REG2_CMD;
 	reg |= 2; // QE bit
 
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+	if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 		return ret;
 	}
 
-	if (HAL_QSPI_Transmit(&hqspi, &reg, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+	if (HAL_XSPI_Transmit(&hospi1, &reg, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 		return ret;
 	}
 
 	/* Read Volatile Configuration register 3 --------------------------- */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_STATUS_REG3_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-	sCommand.NbData = 1;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.Instruction = READ_STATUS_REG3_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 1;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,
-			HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand,
+			HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
-	if ((ret = HAL_QSPI_Receive(&hqspi, &reg, HAL_QPSI_TIMEOUT_DEFAULT_VALUE))
+	if ((ret = HAL_XSPI_Receive(&hospi1, &reg, HAL_XSPI_TIMEOUT_DEFAULT_VALUE))
 			!= HAL_OK) {
 		return ret;
 	}
 
 	/* Write Volatile Configuration register 2 (DRV1:2 = 00) -- */
-	sCommand.Instruction = WRITE_STATUS_REG3_CMD;
+	hCommand.Instruction = WRITE_STATUS_REG3_CMD;
 	reg &= 0x9f; // DRV1:2 bit
 
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+	if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 		return ret;
 	}
 
-	if (HAL_QSPI_Transmit(&hqspi, &reg, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+	if (HAL_XSPI_Transmit(&hospi1, &reg, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 		return ret;
 	}
@@ -590,85 +639,106 @@ uint8_t QSPI_Configuration(void) {
 	return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address) { // 64KB
-	QSPI_CommandTypeDef sCommand = { 0 };
-	QSPI_AutoPollingTypeDef sConfig = { 0 };
+uint8_t CSP_XSPI_EraseBlock(uint32_t flash_address) { // 64KB
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
+	XSPI_AutoPollingTypeDef sConfig = { 0 };
 	HAL_StatusTypeDef ret;
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
 	/* Enable write operations ------------------------------------------- */
-	if ((ret = QSPI_WriteEnable()) != HAL_OK) {
+	if ((ret = XSPI_WriteEnable()) != HAL_OK) {
 		return ret;
 	}
 
 	/* Erasing Sequence -------------------------------------------------- */
-	sCommand.Instruction = BLOCK_ERASE_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-	sCommand.Address = flash_address;
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
+	hCommand.Instruction = BLOCK_ERASE_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;
+	hCommand.Address = flash_address;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.DummyCycles = 0;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
 
 	/* Configure automatic polling mode to wait for Busy to go low ---- */
-	sConfig.Match = 0x00;
-	sConfig.Mask = 0x01;
-	sConfig.MatchMode = QSPI_MATCH_MODE_AND;
-	sConfig.StatusBytesSize = 1;
-	sConfig.Interval = 0x10;
-	sConfig.AutomaticStop = QSPI_AUTOMATIC_STOP_ENABLE;
-	sCommand.Instruction = READ_STATUS_REG_CMD;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
+	sConfig.MatchValue = 0x00;
+	sConfig.MatchMask = 0x01;
+	sConfig.MatchMode = HAL_XSPI_MATCH_MODE_AND;
+	sConfig.IntervalTime = 0x10;
+	sConfig.AutomaticStop = HAL_XSPI_AUTOMATIC_STOP_ENABLE;
+	hCommand.Instruction = READ_STATUS_REG_CMD;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 1;
 
-	if ((ret = HAL_QSPI_AutoPolling(&hqspi, &sCommand, &sConfig,HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+		return ret;
+	}
+
+	if ((ret = HAL_XSPI_AutoPolling(&hospi1, &sConfig, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
 	return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
+uint8_t CSP_XSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
 
-	QSPI_CommandTypeDef sCommand;
+	XSPI_RegularCmdTypeDef hCommand;
 
 	EraseStartAddress = EraseStartAddress
 			- EraseStartAddress % MEMORY_SECTOR_SIZE;
 
 	/* Erasing Sequence -------------------------------------------------- */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = SECTOR_ERASE_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = SECTOR_ERASE_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
 	while (EraseEndAddress >= EraseStartAddress) {
-		sCommand.Address = (EraseStartAddress & 0x0FFFFFFF);
+		hCommand.Address = (EraseStartAddress & 0x0FFFFFFF);
 
-		if (QSPI_WriteEnable() != HAL_OK) {
+		if (XSPI_WriteEnable() != HAL_OK) {
 			return HAL_ERROR;
 		}
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)	!= HAL_OK) {
+		if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 		EraseStartAddress += MEMORY_SECTOR_SIZE;
 
-		if (QSPI_AutoPollingMemReady() != HAL_OK) {
+		if (XSPI_AutoPollingMemReady() != HAL_OK) {
 			return HAL_ERROR;
 		}
 	}
@@ -676,9 +746,9 @@ uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddres
 	return HAL_OK;
 }
 
-uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,	uint32_t buffer_size) {
+uint8_t CSP_XSPI_WriteMemory(uint8_t *buffer, uint32_t address,	uint32_t buffer_size) {
 
-	QSPI_CommandTypeDef sCommand;
+	XSPI_RegularCmdTypeDef hCommand;
 	uint32_t end_addr, current_size, current_addr;
 
 	/* Calculation of the size between the write address and the end of the page */
@@ -699,43 +769,51 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,	uint32_t buffer_
 	current_addr = address;
 	end_addr = address + buffer_size;
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = QUAD_IN_FAST_PROG_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-	sCommand.DataMode = QSPI_DATA_4_LINES;
-	sCommand.NbData = buffer_size;
-	sCommand.Address = address;
-	sCommand.DummyCycles = 0;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = QUAD_IN_FAST_PROG_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_4_LINES;
+	hCommand.DataLength = buffer_size;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.Address = address;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
 	/* Perform the write page by page */
 	do {
-		sCommand.Address = current_addr;
-		sCommand.NbData = current_size;
+		hCommand.Address = current_addr;
+		hCommand.DataLength = current_size;
 
 		if (current_size == 0) return HAL_OK;
 
 
 		/* Enable write operations */
-		if (QSPI_WriteEnable() != HAL_OK) return HAL_ERROR;
+		if (XSPI_WriteEnable() != HAL_OK) return HAL_ERROR;
 
 
 		/* Configure the command */
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
+		if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 
 		/* Transmission of the data */
-		if (HAL_QSPI_Transmit(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
+		if (HAL_XSPI_Transmit(&hospi1, buffer, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 
 		/* Configure automatic polling mode to wait for end of program */
-		if (QSPI_AutoPollingMemReady() != HAL_OK) {
+		if (XSPI_AutoPollingMemReady() != HAL_OK) {
 			return HAL_ERROR;
 		}
 
@@ -750,103 +828,133 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,	uint32_t buffer_
 
 }
 
-uint8_t CSP_QSPI_EnableMemoryMappedMode(void) {
+uint8_t CSP_XSPI_EnableMemoryMappedMode(void) {
 
-	QSPI_CommandTypeDef sCommand;
-	QSPI_MemoryMappedTypeDef sMemMappedCfg;
+	XSPI_RegularCmdTypeDef hCommand;
+	XSPI_MemoryMappedTypeDef sMemMappedCfg;
 
 	/* Enable Memory-Mapped mode-------------------------------------------------- */
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = QUAD_OUT_FAST_READ_CMD;
-	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-	sCommand.Address = 0;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-	sCommand.DataMode = QSPI_DATA_4_LINES;
-	sCommand.NbData = 0;
-	sCommand.DummyCycles = 8;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.AlternateBytes = 0;
-	sCommand.AlternateBytesSize = 0;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_READ_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = QUAD_OUT_FAST_READ_CMD;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_4_LINES;
+	hCommand.DataLength = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 8;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	sMemMappedCfg.TimeOutActivation = QSPI_TIMEOUT_COUNTER_DISABLE;
-	sMemMappedCfg.TimeOutPeriod = 0;
+	sMemMappedCfg.TimeOutActivation = HAL_XSPI_TIMEOUT_COUNTER_DISABLE;
+	sMemMappedCfg.TimeoutPeriodClock = 0;
+	HAL_StatusTypeDef ret;
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+		return ret;
+	}
 
-	if (HAL_QSPI_MemoryMapped(&hqspi, &sCommand, &sMemMappedCfg) != HAL_OK) {
+	if (HAL_XSPI_MemoryMapped(&hospi1, &sMemMappedCfg) != HAL_OK) {
 		return HAL_ERROR;
 	}
 	return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EnableMemoryMappedMode2(void) {
+uint8_t CSP_XSPI_EnableMemoryMappedMode2(void) {
 
-	QSPI_CommandTypeDef sCommand;
-	QSPI_MemoryMappedTypeDef sMemMappedCfg;
+	XSPI_RegularCmdTypeDef hCommand;
+	XSPI_MemoryMappedTypeDef sMemMappedCfg;
 
 	/* Enable Memory-Mapped mode-------------------------------------------------- */
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = QUAD_IN_OUT_FAST_READ_CMD;
-	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-	sCommand.AddressMode = QSPI_ADDRESS_4_LINES;
-	sCommand.Address = 0;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_4_LINES;
-	sCommand.AlternateBytes = 0xFF;
-	sCommand.AlternateBytesSize = 1;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-	sCommand.DataMode = QSPI_DATA_4_LINES;
-	sCommand.NbData = 0;
-	sCommand.DummyCycles = 4;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_READ_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = QUAD_IN_OUT_FAST_READ_CMD;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_4_LINES;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_4_LINES;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0xFF;
+	hCommand.DataMode = HAL_XSPI_DATA_4_LINES;
+	hCommand.DataLength = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 4;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	sMemMappedCfg.TimeOutActivation = QSPI_TIMEOUT_COUNTER_DISABLE;
-	sMemMappedCfg.TimeOutPeriod = 0;
+	sMemMappedCfg.TimeOutActivation = HAL_XSPI_TIMEOUT_COUNTER_DISABLE;
+	sMemMappedCfg.TimeoutPeriodClock = 0;
+	HAL_StatusTypeDef ret;
 
-	if (HAL_QSPI_MemoryMapped(&hqspi, &sCommand, &sMemMappedCfg) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+		return ret;
+	}
+
+	if (HAL_XSPI_MemoryMapped(&hospi1, &sMemMappedCfg) != HAL_OK) {
 		return HAL_ERROR;
 	}
 	return HAL_OK;
 }
 
-uint8_t QSPI_ResetChip(void) {
-	QSPI_CommandTypeDef sCommand = { 0 };
+uint8_t XSPI_ResetChip(void) {
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
 	uint32_t temp = 0;
 	HAL_StatusTypeDef ret;
 
 	/* Enable Reset --------------------------- */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = RESET_ENABLE_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = RESET_ENABLE_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,
-			HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand,
+			HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
 	/* Reset Device --------------------------- */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = RESET_EXECUTE_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.Instruction = RESET_EXECUTE_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.DataMode = HAL_XSPI_DATA_NONE;
+	hCommand.DataLength = 0;
+	hCommand.DummyCycles = 0;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,
-			HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand,
+			HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
@@ -858,27 +966,37 @@ uint8_t QSPI_ResetChip(void) {
 }
 
 
-uint8_t QSPI_ReadID(uint32_t *id) {
-	QSPI_CommandTypeDef sCommand = { 0 };
+uint8_t XSPI_ReadID(uint32_t *id) {
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
 	uint8_t pData[3]={0};
 	HAL_StatusTypeDef ret;
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_JEDEC_ID_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_NONE;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.DummyCycles = 0;
-	sCommand.NbData = 3;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = READ_JEDEC_ID_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 3;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
-	if (HAL_QSPI_Receive(&hqspi, pData, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)	!= HAL_OK) {
+	if (HAL_XSPI_Receive(&hospi1, pData, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
 
@@ -887,29 +1005,37 @@ uint8_t QSPI_ReadID(uint32_t *id) {
 	return HAL_OK;
 }
 
-uint8_t QSPI_ReadUniqueID(uint8_t *pData)
+uint8_t XSPI_ReadUniqueID(uint8_t *pData)
 {
-	QSPI_CommandTypeDef sCommand = { 0 };
+	XSPI_RegularCmdTypeDef hCommand = { 0 };
 	HAL_StatusTypeDef ret;
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_UNIQUE_ID_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-	sCommand.AddressSize = QSPI_ADDRESS_32_BITS;
-	sCommand.Address = 0;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.DummyCycles = 0;
-	sCommand.NbData = 8;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = READ_UNIQUE_ID_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_32_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 8;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
-	if ((ret = HAL_QSPI_Command(&hqspi, &sCommand,HAL_QPSI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
+	if ((ret = HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE)) != HAL_OK) {
 		return ret;
 	}
 
-	if (HAL_QSPI_Receive(&hqspi, pData, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)	!= HAL_OK) {
+	if (HAL_XSPI_Receive(&hospi1, pData, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
 
@@ -917,80 +1043,84 @@ uint8_t QSPI_ReadUniqueID(uint8_t *pData)
 }
 
 
-uint8_t CSP_QSPI_Read(uint8_t *pData, uint32_t ReadAddr, uint32_t Size) {
-	QSPI_CommandTypeDef sCommand;
+uint8_t CSP_XSPI_Read(uint8_t *pData, uint32_t ReadAddr, uint32_t Size) {
+	XSPI_RegularCmdTypeDef hCommand;
 
 
-	qprintf(" CSP_QSPI_Read(0x%lx,%d)\n",ReadAddr,Size);
+	qprintf(" CSP_XSPI_Read(0x%lx,%d)\n",ReadAddr,Size);
 
 	/* Initialize the read command */
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = QUAD_IN_OUT_FAST_READ_CMD;
-	sCommand.AddressMode = QSPI_ADDRESS_4_LINES;
-	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-	sCommand.Address = ReadAddr;
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_4_LINES;
-	sCommand.DummyCycles = 6U;
-	sCommand.NbData = Size;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = QUAD_IN_OUT_FAST_READ_CMD;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_4_LINES;
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_24_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = ReadAddr;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_4_LINES;
+	hCommand.DataLength = Size;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 6U;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
 	/* Configure the command */
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
+	if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
-
-	/* Set S# timing for Read command */
-	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_CSHT, QSPI_CS_HIGH_TIME_5_CYCLE);
 
 	/* Reception of the data */
-	if (HAL_QSPI_Receive(&hqspi, pData, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
+	if (HAL_XSPI_Receive(&hospi1, pData, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
-
-	/* Restore S# timing for nonRead commands */
-	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_CSHT,QSPI_CS_HIGH_TIME_6_CYCLE);
 
 	return HAL_OK;
 }
 
 
-uint8_t QSPI_ReadSFDP(uint8_t *sfdp)
+uint8_t XSPI_ReadSFDP(uint8_t *sfdp)
 {
-	QSPI_CommandTypeDef sCommand;
+	XSPI_RegularCmdTypeDef hCommand;
 
-	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_SFDP_CMD;
+	hCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
+	hCommand.IOSelect = HAL_XSPI_SELECT_IO_7_0;
+	hCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
+	hCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
+	hCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+	hCommand.Instruction = READ_SFDP_CMD;
 
-	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;						// 4 Dummy bytes
-	sCommand.AddressSize = QSPI_ADDRESS_32_BITS;
-	sCommand.Address = 0;
+	hCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;						// 4 Dummy bytes
+	hCommand.AddressWidth = HAL_XSPI_ADDRESS_32_BITS;
+	hCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
+	hCommand.Address = 0;
 
-	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
-	sCommand.DummyCycles = 0;
-	sCommand.NbData = 256;
-	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	hCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+	hCommand.AlternateBytesWidth = HAL_XSPI_ALT_BYTES_8_BITS;
+	hCommand.AlternateBytesDTRMode = HAL_XSPI_ALT_BYTES_DTR_DISABLE;
+	hCommand.AlternateBytes = 0;
+	hCommand.DataMode = HAL_XSPI_DATA_1_LINE;
+	hCommand.DataLength = 256;
+	hCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
+	hCommand.DummyCycles = 0;
+	hCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
+	hCommand.SIOOMode = HAL_XSPI_SIOO_INST_EVERY_CMD;
 
 	/* Configure the command */
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
+	if (HAL_XSPI_Command(&hospi1, &hCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
-
-	/* Set S# timing for Read command */
-	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_CSHT,QSPI_CS_HIGH_TIME_5_CYCLE);
 
 	/* Reception of the data */
-	if (HAL_QSPI_Receive(&hqspi, sfdp, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
+	if (HAL_XSPI_Receive(&hospi1, sfdp, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
-
-	/* Restore S# timing for nonRead commands */
-	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_CSHT,QSPI_CS_HIGH_TIME_6_CYCLE);
 
 	return HAL_OK;
 }

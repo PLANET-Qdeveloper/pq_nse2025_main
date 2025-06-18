@@ -2,13 +2,15 @@
 #define FLASH_H
 
 #include "stm32h5xx_hal.h"
+#include "stm32h5xx_hal_xspi.h"
 
 #include "lfs.h"
 #include "lfs_util.h"
 #include "octospi.h"
+#include "main.h"
 
 
-#define FS_SIZE                 (1024 * 1024 * 16)                   // 8Mbyte **check the same in ioc file else -5 error **
+#define FS_SIZE                 (1024 * 1024 * 16)                   // 16Mbyte **check the same in ioc file else -5 error **
 #define FS_PAGE_SIZE            256									// Winbond W25Qxx 256 Page program
 #define FS_SECTOR_SIZE          4096	
 
@@ -49,6 +51,7 @@ struct littlfs_fsstat_t {
 #define READ_SFDP_CMD					0x5A
 
 
+// LittleFS interface functions
 int stmlfs_mount(bool format);
 int stmlfs_file_open(lfs_file_t *file, const char *path, int flags);
 int stmlfs_file_read(lfs_file_t *file,void *buffer, lfs_size_t size);
@@ -80,24 +83,26 @@ const char* stmlfs_errmsg(int err);
 void dump_dir(void);
 
 
+// LittleFS HAL interface functions
 int stmlfs_hal_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void* buffer, lfs_size_t size);
 int stmlfs_hal_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void* buffer, lfs_size_t size);
 int stmlfs_hal_erase(const struct lfs_config *c, lfs_block_t sector);
 int stmlfs_hal_sync(const struct lfs_config *c);
 
 
-uint8_t CSP_QUADSPI_Init(void);
-uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress ,uint32_t EraseEndAddress);
-uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address);
-uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
-uint8_t CSP_QSPI_EnableMemoryMappedMode(void);
-uint8_t CSP_QSPI_EnableMemoryMappedMode2(void);
-uint8_t CSP_QSPI_Erase_Chip (void);
-uint8_t QSPI_AutoPollingMemReady(void);
-uint8_t CSP_QSPI_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size);
-uint8_t QSPI_ReadID(uint32_t *id);
-//uint8_t QSPI_ResetChip(void);
-uint8_t QSPI_ReadUniqueID(uint8_t *pData);
-uint8_t QSPI_ReadSFDP(uint8_t *sfdp);
+// OCTOSPI (XSPI) Flash driver functions
+uint8_t CSP_XSPI_Init(void);
+uint8_t CSP_XSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress);
+uint8_t CSP_XSPI_EraseBlock(uint32_t flash_address);
+uint8_t CSP_XSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
+uint8_t CSP_XSPI_EnableMemoryMappedMode(void);
+uint8_t CSP_XSPI_EnableMemoryMappedMode2(void);
+uint8_t CSP_XSPI_Erase_Chip(void);
+uint8_t XSPI_AutoPollingMemReady(void);
+uint8_t CSP_XSPI_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size);
+uint8_t XSPI_ReadID(uint32_t *id);
+uint8_t XSPI_ResetChip(void);
+uint8_t XSPI_ReadUniqueID(uint8_t *pData);
+uint8_t XSPI_ReadSFDP(uint8_t *sfdp);
 
 #endif
