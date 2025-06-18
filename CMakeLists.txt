@@ -12,6 +12,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
+# Setup ARM GNU tools
+set(CMAKE_OBJDUMP arm-gnu-objdump)
 
 # Define the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -40,7 +42,6 @@ add_executable(${CMAKE_PROJECT_NAME})
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/Core/devices/codec/aff3ct)
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
@@ -52,8 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     ${CMAKE_SOURCE_DIR}/Core/devices/flash/flash.c
     ${CMAKE_SOURCE_DIR}/Core/devices/flash/lfs.c
-    ${CMAKE_SOURCE_DIR}/Core/devices/flash/lfs_util.c
-    ${CMAKE_SOURCE_DIR}/Core/devices/codec/transmission.cpp
+    ${CMAKE_SOURCE_DIR}/Core/devices/codec/transmission.c
 )
 
 # Add include paths
