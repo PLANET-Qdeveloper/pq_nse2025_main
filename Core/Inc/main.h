@@ -36,7 +36,16 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef	uint8_t u8;/**< used for unsigned 8bit */
+typedef	uint16_t u16;/**< used for unsigned 16bit */
+typedef	uint32_t u32;/**< used for unsigned 32bit */
+typedef	uint64_t u64;/**< used for unsigned 64bit */
 
+/*signed integer types*/
+typedef	int8_t s8;/**< used for signed 8bit */
+typedef	int16_t s16;/**< used for signed 16bit */
+typedef	int32_t s32;/**< used for signed 32bit */
+typedef	int64_t s64;/**< used for signed 64bit */
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -63,10 +72,12 @@ void Error_Handler(void);
 #define M0_GPIO_Port GPIOC
 #define CS1_Pin GPIO_PIN_4
 #define CS1_GPIO_Port GPIOA
+#define EMOUT_Pin GPIO_PIN_4
+#define EMOUT_GPIO_Port GPIOC
 #define M1_Pin GPIO_PIN_5
 #define M1_GPIO_Port GPIOC
-#define SS3_Pin GPIO_PIN_1
-#define SS3_GPIO_Port GPIOB
+#define SS2_Pin GPIO_PIN_1
+#define SS2_GPIO_Port GPIOB
 #define POW_COM_Pin GPIO_PIN_6
 #define POW_COM_GPIO_Port GPIOC
 #define RESET_GNSS_Pin GPIO_PIN_7
@@ -79,6 +90,8 @@ void Error_Handler(void);
 #define AUX_GPIO_Port GPIOA
 #define RESET_LORA_Pin GPIO_PIN_9
 #define RESET_LORA_GPIO_Port GPIOA
+#define LOOUT_Pin GPIO_PIN_10
+#define LOOUT_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
 

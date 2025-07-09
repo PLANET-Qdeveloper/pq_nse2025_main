@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os2.h"
 #include "adc.h"
 #include "fdcan.h"
 #include "i2c.h"
@@ -32,6 +33,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "flash.h"
+#include "imu.h"
+#include "gnss.h"
+#include "environment.h"
+#include "wireless.h"
+#include "logger.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -44,9 +50,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define NUMBER_OF_FILES        8                                       // max 32
-#define FILE_SIZE            8192
-#define FILE_DEBUG            1                                        // Show test file messages, disable for benchmark
 
 
 /* USER CODE END PD */
@@ -59,11 +62,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static uint32_t tick_count = 0;  // Simple tick counter for benchmarking
+
+extern struct bno055_t bno055;
+extern struct bme280_t bme280;
+extern struct LoRa_Handler LoRaTX;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 void Set_OSPI_MemoryMappedMode(void);
 /* USER CODE END PFP */
@@ -110,185 +117,46 @@ int main(void)
   MX_RTC_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
-  MX_UART4_Init();
   MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  MX_USART3_UART_Init();
   MX_TIM1_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
-  
   // Flash memory and LittleFS test code
-  const char* fn_templ1 = "F%u.tst";
-  const char* fn_templ2 = "R%u.tst";
-  char fn[32], fn2[32];
-  uint8_t buffer[FILE_SIZE]={0};
-  lfs_file_t fp;
-  uint32_t starttime, runtime;
+  init_wireless();
+  init_flash();
+
+  output_log(LOG_LEVEL_IMPORTANT, "Booted core function: %ld", HAL_GetTick());
+
+
+  // init gnss
+  HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_RESET);
+  osDelay(100);
+  HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_SET);
+  init_imu();
+  init_env_data();
+  
 
   
-  printf("\n\nOCTOSPI Flash Test, CPU clk=%luMHz\n", HAL_RCC_GetSysClockFreq()/1000000);
-  // Initialize XSPI Flash
-  if (CSP_XSPI_Init() != HAL_OK) {
-      printf("*** CSP_XSPI_INIT Failed\n");
-      Error_Handler();
-  }
-  
-  HAL_Delay(100);
-  
-  printf("\nlittlefs version  = %x\n", LFS_VERSION);
-  
-  // Read Flash ID
-  uint32_t id=0;
-  XSPI_ReadID(&id);
-  printf("Flash Identifier  = 0x%08lx\n", id);
-  
-  // Read Unique ID
-  uint8_t uid[8]={0};
-  XSPI_ReadUniqueID(uid);
-  printf("64bits Identifier = 0x");
-  for (int i=0; i<8; i++) printf("%02x", uid[i]);
-  printf("\n");
-  
-  // Read SFDP Table
-  printf("\nRead SFDP Table:\n");
-  uint8_t sfdp[256]={0};
-  XSPI_ReadSFDP(sfdp);
-  printf("%2c %2c %2c %2c ", sfdp[0], sfdp[1], sfdp[2], sfdp[3]);
-  for (int i=4; i<256; i++) {
-      if (i%32==0) printf("\n");
-      printf("%02x ", sfdp[i]);
-  }
-  printf("\n\n");
-  
-  // Optional: Erase entire chip (uncomment if needed)
-  // printf("Erasing Chip.....\n");
-  // if (CSP_XSPI_Erase_Chip() != HAL_OK) {
-  //     printf("*** CSP_XSPI_Erase_Chip Failed\n");
-  //     Error_Handler();
-  // }
-  // printf("Chip Erased\n");
-  
-  // Start Timer for benchmarking (using system tick)
-  HAL_TIM_Base_Start_IT(&htim1);
-  
-  // Test timer accuracy
-  starttime = HAL_GetTick();
-  HAL_Delay(500);
-  runtime = HAL_GetTick() - starttime;
-  if (runtime != 500) printf("Timer clock incorrect? expected 500 got %lu\n", runtime);
-  
-  printf("\n\nMount littlfs and start timer\n\n");
-  starttime = HAL_GetTick();  // Start benchmark timer
-  
-  // Mount filesystem with format
-  stmlfs_mount(true);
-  
-  //---------------------------------------------------------------------------------------------
-  // We'll create NUMBER_OF_FILES files, verify them, rename them, reverify, and delete them.
-  //---------------------------------------------------------------------------------------------
-  for (int i = 0; i < NUMBER_OF_FILES; i++) {
-      sprintf(fn, fn_templ1, i);  // Create file name string
-      memset(buffer, i, FILE_SIZE);
-      
-      int err = stmlfs_file_open(&fp, fn, LFS_O_WRONLY | LFS_O_CREAT);  // Create the file
-      if (err < 0) {
-          printf("open failed\n");
-          Error_Handler();
-      }
-      
-      printf("Write to File %s\n", fn);
-      uint32_t wrsize = (uint32_t)stmlfs_file_write(&fp, buffer, FILE_SIZE);  // Write the file
-      if (FILE_SIZE != wrsize) {
-          printf("write fails, %lu bytes written out of %d\n", wrsize, FILE_SIZE);
-          Error_Handler();
-      }
-      
-      if (stmlfs_file_close(&fp) < 0) {  // flush and close the file
-          printf("close failed\n");
-          Error_Handler();
-      }
-  }
-  
-  #ifdef FILE_DEBUG
-      dump_dir();  // Show directory
-  #endif
-  
-  stmlfs_unmount();  // Unmount & remount
-  stmlfs_mount(false);
-  
-  struct littlfs_fsstat_t stat;  // Display file system sizes
-  stmlfs_fsstat(&stat);
-  printf("FS: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
-  
-  // Rename files test
-  for (int i = 0; i < NUMBER_OF_FILES; i++) {
-      sprintf(fn, fn_templ1, i);
-      sprintf(fn2, fn_templ2, i);
-      
-      printf("Rename from %s to %s\n", fn, fn2);
-      if (stmlfs_rename(fn, fn2) < 0) {  // rename
-          printf("rename failed\n");
-          fflush(stdout);
-          Error_Handler();
-      }
-  }
-  
-  #ifdef FILE_DEBUG
-      dump_dir();  // Show directory
-  #endif
-  
-  stmlfs_fsstat(&stat);  // Display file system sizes
-  printf("FS: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
-  
-  // Read and verify files test
-  for (int i = 0; i < NUMBER_OF_FILES; i++) {
-      sprintf(fn, fn_templ1, i);
-      sprintf(fn2, fn_templ2, i);
-      
-      printf("Reopen Filename=%s\n", fn2);
-      int err = stmlfs_file_open(&fp, fn2, LFS_O_RDONLY);  // verify the file's content
-      if (err < 0) {
-          printf("lfs open failed\n");
-          Error_Handler();
-      } else {
-          stmlfs_file_read(&fp, buffer, FILE_SIZE);
-          bool err = false;
-          for (int j=0; j<FILE_SIZE; j++) if (buffer[j] != i) err = true;
-          if (err) printf("Read failed for %d\n", i);
-          stmlfs_file_close(&fp);
-          
-          if (stmlfs_remove(fn2) < 0) {  // Delete the file
-              printf("remove failed\n");
-              Error_Handler();
-          } else printf("File %s removed\n", fn2);
-      }
-  }
-  
-  #ifdef FILE_DEBUG
-      dump_dir();  // Show directory
-  #endif
-  
-  stmlfs_fsstat(&stat);  // Display file system sizes
-  printf("FS: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
-  
-  stmlfs_unmount();  // Release any resources we were using
-  
-  runtime = HAL_GetTick() - starttime;
-  printf("lfs test done, runtime %lu ms\n", runtime);
-  fflush(stdout);
-  
-  printf("\nEntering standby mode...\n");
-  HAL_PWR_EnterSTANDBYMode();  // System stops here
-  
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* Call init function for freertos objects (in app_freertos.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      // Simple delay loop if system doesn't enter standby
-      HAL_Delay(1000);
+	  
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -314,9 +182,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE
+                              |RCC_OSCILLATORTYPE_CSI;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+  RCC_OscInitStruct.CSIState = RCC_CSI_ON;
+  RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLL1_SOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 5;
@@ -536,11 +407,33 @@ void Set_OSPI_MemoryMappedMode(void)
   */
 int _write(int file, char *ptr, int len)
 {
-  HAL_UART_Transmit(&huart4,(uint8_t *)ptr,len,10);
+  //HAL_UART_Transmit(&huart4,(uint8_t *)ptr,len,10);
   return len;
 }
 
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

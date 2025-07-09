@@ -51,43 +51,56 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, RESET_IMU_Pin|M0_Pin|M1_Pin|POW_COM_Pin
-                          |RESET_GNSS_Pin|POW_VALVE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, RESET_IMU_Pin|M0_Pin|EMOUT_Pin|M1_Pin
+                          |POW_COM_Pin|RESET_GNSS_Pin|POW_VALVE_Pin|LOOUT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, CS1_Pin|AUX_Pin|RESET_LORA_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, CS1_Pin|RESET_LORA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SS3_GPIO_Port, SS3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SS2_GPIO_Port, SS2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : RESET_IMU_Pin M0_Pin M1_Pin POW_COM_Pin
-                           RESET_GNSS_Pin POW_VALVE_Pin */
-  GPIO_InitStruct.Pin = RESET_IMU_Pin|M0_Pin|M1_Pin|POW_COM_Pin
-                          |RESET_GNSS_Pin|POW_VALVE_Pin;
+  /*Configure GPIO pins : RESET_IMU_Pin EMOUT_Pin POW_COM_Pin RESET_GNSS_Pin
+                           POW_VALVE_Pin LOOUT_Pin */
+  GPIO_InitStruct.Pin = RESET_IMU_Pin|EMOUT_Pin|POW_COM_Pin|RESET_GNSS_Pin
+                          |POW_VALVE_Pin|LOOUT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CS1_Pin AUX_Pin RESET_LORA_Pin */
-  GPIO_InitStruct.Pin = CS1_Pin|AUX_Pin|RESET_LORA_Pin;
+  /*Configure GPIO pins : M0_Pin M1_Pin */
+  GPIO_InitStruct.Pin = M0_Pin|M1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CS1_Pin RESET_LORA_Pin */
+  GPIO_InitStruct.Pin = CS1_Pin|RESET_LORA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SS3_Pin */
-  GPIO_InitStruct.Pin = SS3_Pin;
+  /*Configure GPIO pin : SS2_Pin */
+  GPIO_InitStruct.Pin = SS2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(SS3_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SS2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PG_Pin */
   GPIO_InitStruct.Pin = PG_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PG_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : AUX_Pin */
+  GPIO_InitStruct.Pin = AUX_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(AUX_GPIO_Port, &GPIO_InitStruct);
 
 }
 

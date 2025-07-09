@@ -42,18 +42,37 @@ add_executable(${CMAKE_PROJECT_NAME})
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
+# Add CMSIS-DSP library
+set(CMSISCORE ${CMAKE_SOURCE_DIR}/Drivers/CMSIS)
+add_subdirectory(${CMAKE_SOURCE_DIR}/cmsis-dsp/Source bin_dsp)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/cmsis-dsp/Include)
+
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
     
 )
 
+
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     ${CMAKE_SOURCE_DIR}/Core/devices/flash/flash.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/flash/w25qx.c
     ${CMAKE_SOURCE_DIR}/Core/devices/flash/lfs.c
     ${CMAKE_SOURCE_DIR}/Core/devices/codec/transmission.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/imu/imu.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/imu/bno055.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/imu/bno055_support.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/environment/environment.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/environment/bme280.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/environment/bme280_support.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/wireless/E22_900T22S.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/wireless/wireless.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/cli.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/state.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/apogee.c  
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/logger.c
 )
 
 # Add include paths
@@ -61,6 +80,11 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     ${CMAKE_SOURCE_DIR}/Core/devices/flash/
     ${CMAKE_SOURCE_DIR}/Core/devices/codec/
+    ${CMAKE_SOURCE_DIR}/Core/devices/imu/
+    ${CMAKE_SOURCE_DIR}/Core/devices/gnss/
+    ${CMAKE_SOURCE_DIR}/Core/devices/environment/
+    ${CMAKE_SOURCE_DIR}/Core/devices/wireless/
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/
 )
 
 # Add project symbols (macros)

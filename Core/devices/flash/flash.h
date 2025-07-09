@@ -1,108 +1,43 @@
-#ifndef FLASH_H
-#define FLASH_H
+#ifndef __FLASH_H__
+#define __FLASH_H__
 
-#include "stm32h5xx_hal.h"
-#include "stm32h5xx_hal_xspi.h"
-
-#include "lfs.h"
-#include "lfs_util.h"
-#include "octospi.h"
 #include "main.h"
+#include "w25qx.h"
+#include "lfs.h"
+#include "logger.h"
+
+#define BOOT_COUNT_FILE_NAME "boot_count.txt"
+#define LOG_FILE_NAME "log.txt"
+
+#define NUMBER_OF_FILES        8                                       // max 32
+#define FILE_SIZE            8192
+#define FILE_DEBUG            1                                        // Show test file messages, disable for benchmark
 
 
-#define FS_SIZE                 (1024 * 1024 * 16)                   // 16Mbyte **check the same in ioc file else -5 error **
-#define FS_PAGE_SIZE            256									// Winbond W25Qxx 256 Page program
-#define FS_SECTOR_SIZE          4096	
 
-struct littlfs_fsstat_t {
-    lfs_size_t block_size;
-    lfs_size_t block_count;
-    lfs_size_t blocks_used;
-};
+typedef struct {
+    lfs_file_t file;
+    uint32_t pos;
+    uint32_t size;
+} flash_stream_t;
 
-
-/*W25Q128JV memory parameters*/
-#define MEMORY_FLASH_SIZE				0x1000000 /* 128Mbit =>16Mbyte */
-#define MEMORY_BLOCK_SIZE				0x10000   /* 128 blocks of 64KBytes */
-#define MEMORY_SECTOR_SIZE				0x1000    /* 4kBytes */
-#define MEMORY_PAGE_SIZE				0x100     /* 256 bytes */
+int init_flash();
+int write_flash_log(uint8_t *data, uint32_t size);
 
 
-/*W25Q128JV commands */
-#define CHIP_ERASE_CMD 					0xC7
-#define READ_STATUS_REG_CMD 			0x05
-#define WRITE_ENABLE_CMD 				0x06
-#define VOLATILE_SR_WRITE_ENABLE   	 	0x50
-#define READ_STATUS_REG2_CMD 			0x35
-#define WRITE_STATUS_REG2_CMD 			0x31
-#define READ_STATUS_REG3_CMD 			0x15
-#define WRITE_STATUS_REG3_CMD       	0x11
-#define SECTOR_ERASE_CMD 				0x20
-#define BLOCK_ERASE_CMD 				0xD8
-#define QUAD_IN_FAST_PROG_CMD 			0x32
-#define FAST_PROG_CMD 					0x02
-#define QUAD_OUT_FAST_READ_CMD 			0x6B
-#define DUMMY_CLOCK_CYCLES_READ_QUAD 	8
-#define QUAD_IN_OUT_FAST_READ_CMD 		0xEB
-#define RESET_ENABLE_CMD 				0x66
-#define RESET_EXECUTE_CMD 				0x99
-#define READ_JEDEC_ID_CMD 				0x9F
-#define READ_UNIQUE_ID_CMD 				0x4B
-#define READ_SFDP_CMD					0x5A
-
-
-// LittleFS interface functions
-int stmlfs_mount(bool format);
-int stmlfs_file_open(lfs_file_t *file, const char *path, int flags);
-int stmlfs_file_read(lfs_file_t *file,void *buffer, lfs_size_t size);
-int stmlfs_file_rewind(lfs_file_t *file);
-lfs_ssize_t stmlfs_file_write(lfs_file_t *file,const void *buffer, lfs_size_t size);
-int stmlfs_file_close(lfs_file_t *file);
-int stmlfs_unmount(void);
-int stmlfs_remove(const char* path);
-int stmlfs_rename(const char* oldpath, const char* newpath);
-int stmlfs_fflush(lfs_file_t *file);
-int stmlfs_dir_open(const char* path);
-int stmlfs_dir_close(int dir);
-int stmlfs_dir_read(int dir, struct lfs_info* info);
-int stmlfs_dir_seek(int dir, lfs_off_t off);
-lfs_soff_t stmlfs_dir_tell(int dir);
-int stmlfs_dir_rewind(int dir);
-lfs_soff_t stmlfs_lseek(lfs_file_t *file, lfs_soff_t off, int whence);
-int stmlfs_truncate(lfs_file_t *file, lfs_off_t size);
-lfs_soff_t stmlfs_tell(lfs_file_t *file);
-int stmlfs_stat(const char* path, struct lfs_info* info);
-int stmlfs_fsstat(struct littlfs_fsstat_t* stat);
-lfs_ssize_t stmlfs_getattr(const char* path, uint8_t type, void* buffer, lfs_size_t size);
-int stmlfs_setattr(const char* path, uint8_t type, const void* buffer, lfs_size_t size);
-int stmlfs_removeattr(const char* path, uint8_t type);
-int stmlfs_opencfg(lfs_file_t *file, const char* path, int flags, const struct lfs_file_config* config);
-lfs_soff_t stmlfs_size(lfs_file_t *file);
-int stmlfs_mkdir(const char* path);
-const char* stmlfs_errmsg(int err);
-void dump_dir(void);
-
-
-// LittleFS HAL interface functions
-int stmlfs_hal_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void* buffer, lfs_size_t size);
-int stmlfs_hal_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void* buffer, lfs_size_t size);
-int stmlfs_hal_erase(const struct lfs_config *c, lfs_block_t sector);
-int stmlfs_hal_sync(const struct lfs_config *c);
-
-
-// OCTOSPI (XSPI) Flash driver functions
-uint8_t CSP_XSPI_Init(void);
-uint8_t CSP_XSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress);
-uint8_t CSP_XSPI_EraseBlock(uint32_t flash_address);
-uint8_t CSP_XSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
-uint8_t CSP_XSPI_EnableMemoryMappedMode(void);
-uint8_t CSP_XSPI_EnableMemoryMappedMode2(void);
-uint8_t CSP_XSPI_Erase_Chip(void);
-uint8_t XSPI_AutoPollingMemReady(void);
-uint8_t CSP_XSPI_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size);
-uint8_t XSPI_ReadID(uint32_t *id);
-uint8_t XSPI_ResetChip(void);
-uint8_t XSPI_ReadUniqueID(uint8_t *pData);
-uint8_t XSPI_ReadSFDP(uint8_t *sfdp);
+int flash_write(uint8_t *data, uint32_t size, const char *filename);
+int flash_read(uint8_t *data, uint32_t size, const char *filename);
+int flash_filelist(const char *path, char *buffer, uint32_t buffer_size);
+int flash_mkdir(const char *path);
+int flash_rm(const char *path);
+int flash_rmdir(const char *path);
+int flash_touch(const char *filename);
+int flash_set_log_file(const char *filename);
+int flash_stream_open(flash_stream_t *stream, const char *filename);
+int flash_stream_read(flash_stream_t *stream, uint8_t *buffer, uint32_t size);
+int flash_stream_close(flash_stream_t *stream);
+uint32_t flash_get_free_size(void);
 
 #endif
+
+
