@@ -55,7 +55,7 @@ enum AIR_DATA_RATE {
 
 /// @brief When the data sent is smaller than the subpacketlength, the serial output of the receiving end is an uninterrupted continuous output. When the data sent is larger than the subpacket length, the serial port in receiving endwillsubpacket the data and then output them.
 enum SUB_PACKET_SIZE {
-	SUB_PACKET_SIZE_240 = 0b00000000, // default
+	SUB_PACKET_SIZE_200 = 0b00000000, // default
 	SUB_PACKET_SIZE_128 = 0b01000000,
 	SUB_PACKET_SIZE_64 = 0b10000000,
 	SUB_PACKET_SIZE_32 = 0b11000000
@@ -168,7 +168,7 @@ struct LoRa_Configuration {
 	uint8_t Uart_baud_rate = UART_BAUDRATE_9600;
 	uint8_t Serial_parity = SERIAL_PARITY_8N1;
 	uint8_t Air_data_rate = AIR_DATA_RATE_2400_1;
-	uint8_t Subpacket_size = SUB_PACKET_SIZE_240;
+	uint8_t Subpacket_size = SUB_PACKET_SIZE_200;
 	uint8_t Rssi_noise = RSSI_NOISE_DISABLED;
 	uint8_t Reserved = LORA_RESERVED;
 	uint8_t Software_mode_func = SOFTWARE_MODE_FUNCTION_DISABLED;

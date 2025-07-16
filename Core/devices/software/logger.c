@@ -10,6 +10,7 @@ int output_log(log_level_t level, const char *format, ...){
     
     // vsnprintfを使って文字列をフォーマット
     int size = vsnprintf(buffer, sizeof(buffer), format, args);
+    size += vsnprintf(buffer + size, sizeof(buffer) - size, "\n", args);
     
     // 終了処理
     va_end(args);

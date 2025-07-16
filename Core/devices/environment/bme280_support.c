@@ -190,11 +190,6 @@ AND HUMIDITY DATA ********
 	float imp_press = ((float)(v_comp_press_u32[1])/100); 	// convert to inches of mercury
 	//float press = ((float)(v_comp_press_u32[1])/100);
 	float imp_humi = ((float)(v_comp_humidity_u32[1])/1024);		// relative humidity
-	env_data->temp = imp_temp;
-	env_data->press = imp_press;
-	env_data->hum = imp_humi;
-	env_data->timestamp = HAL_GetTick();
-
 /*--------------------------------------------------------------------*
 ************ END READ COMPENSATED PRESSURE, TEMPERATURE AND HUMIDITY ********
 *-------------------------------------------------------------------------*/
@@ -327,11 +322,9 @@ s8 BME280_SPI_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	txarray[BME280_INIT_VALUE] = reg_addr|SPI_READ;/*read routine is initiated register address is mask with 0x80*/
 
 	HAL_GPIO_WritePin( SS2_GPIO_Port, SS2_Pin, GPIO_PIN_RESET );
-	BME280_delay_msek(10);
 	status = HAL_SPI_TransmitReceive( &hspi2, (uint8_t *)(&txarray), (uint8_t *)(&rxarray), cnt+1, 5);
 	while( hspi2.State == HAL_SPI_STATE_BUSY ) {};
 	HAL_GPIO_WritePin( SS2_GPIO_Port, SS2_Pin, GPIO_PIN_SET );
-	BME280_delay_msek(5); // since i can't find a buffer flushing command
 	for (stringpos = BME280_INIT_VALUE; stringpos < cnt; stringpos++) {
 		*(reg_data + stringpos) = rxarray[stringpos+BME280_DATA_INDEX];
 	}

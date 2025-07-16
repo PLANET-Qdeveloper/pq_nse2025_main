@@ -1,0 +1,21 @@
+# STM32CubeMX generated files
+*.ioc linguist-vendored
+Drivers/** linguist-vendored
+Middlewares/** linguist-vendored
+
+# HAL and LL drivers
+Core/Inc/stm32*_hal_conf.h linguist-vendored
+Core/Inc/stm32*_it.h linguist-vendored
+Core/Src/stm32*_it.c linguist-vendored
+Core/Src/stm32*_hal_msp.c linguist-vendored
+Core/Src/system_stm32*.c linguist-vendored
+
+# Startup files
+startup_stm32*.s linguist-vendored
+
+# Linker scripts
+*.ld linguist-vendored
+
+# CubeMX project files
+*.ioc linguist-vendored
+mx.scratch linguist-vendored

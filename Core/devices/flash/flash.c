@@ -58,8 +58,7 @@ int init_flash(){
     stmlfs_file_write(&fp, &boot_count, sizeof(boot_count));
 
     if ((err = stmlfs_file_close(&fp)) < 0) {  // flush and close the file
-        output_log(LOG_LEVEL_ERROR, "close failed %d\n", err);
-        Error_Handler();
+
     }
 
 
@@ -87,8 +86,8 @@ int init_flash(){
 
 int write_flash_log(uint8_t *data, uint32_t size){
     int comres = stmlfs_file_open(&fp_log, LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
-    comres += stmlfs_file_write(&fp, data, size);
-    comres += stmlfs_file_close(&fp);
+    comres += stmlfs_file_write(&fp_log, data, size);
+    comres += stmlfs_file_close(&fp_log);
     return comres;
 }
 

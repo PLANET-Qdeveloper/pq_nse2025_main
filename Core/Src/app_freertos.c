@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "environment.h"
+#include "FreeRTOS.h"
 #include "imu.h"
 #include "wireless.h"
 #include "gnss.h"
@@ -31,6 +32,8 @@
 #include "flash.h"
 #include "apogee.h"
 #include "wireless.h"
+#include "float_print.h"
+#include "battery.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,6 +42,14 @@ extern struct LoRa_Handler LoRaTX;
 extern state_t state;
 extern env_data_t env_data;
 extern imu_data_t imu_data;
+extern battery_data_t battery_data;
+extern wireless_data_t wireless_data;
+extern UART_HandleTypeDef huart1;
+extern uint8_t lora_receive_byte;
+uint32_t last_loop_time = 0;
+uint32_t average_loop_time = 0;
+uint32_t average_loop_time_count = 0;
+int init_cplt = 0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -60,14 +71,21 @@ osThreadId_t mainTaskHandle;
 const osThreadAttr_t mainTask_attributes = {
   .name = "mainTask",
   .priority = (osPriority_t) osPriorityBelowNormal,
-  .stack_size = 512 * 4
+  .stack_size = 1024 * 4
 };
 /* Definitions for communicationTask */
 osThreadId_t communicationTaskHandle;
 const osThreadAttr_t communicationTask_attributes = {
   .name = "communicationTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 256 * 4
+  .stack_size = 1024 * 4
+};
+/* Definitions for uartPollTask */
+osThreadId_t uartPollTaskHandle;
+const osThreadAttr_t uartPollTask_attributes = {
+  .name = "uartPollTask",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 128 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -106,6 +124,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of communicationTask */
   communicationTaskHandle = osThreadNew(StartCommunicationTask, NULL, &communicationTask_attributes);
 
+  /* creation of uartPollTask */
+  uartPollTaskHandle = osThreadNew(StartUartPollTask, NULL, &uartPollTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -125,14 +146,41 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN mainTask */
+
+  init_wireless();
+
+  
+  init_flash();
+
+  output_log(LOG_LEVEL_IMPORTANT, "Booted core function: %ld", HAL_GetTick());
+
+
+  // init gnss
+  HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_RESET);
+  osDelay(100);
+  HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_SET);
+  init_imu();
+  init_env_data();
+  output_log(LOG_LEVEL_IMPORTANT, "Init completed: %ld", HAL_GetTick());
+  init_cplt = 1;
+  
+  
   /* Infinite loop */
   for(;;)
   {
+    volatile uint8_t *reg8 = (volatile uint8_t *)0xE0001000;
+    *reg8 = 0x01;
+    volatile uint32_t *reg32 = (volatile uint32_t *)0xE0001004;
+    *reg32 = 0x00;
     update_env_data();
     update_imu_data();
     state_check();
-    output_log(LOG_LEVEL_INFO, "Main loop: %ld", HAL_GetTick());
-    osDelay(1);
+    update_battery_data();
+    average_loop_time += HAL_GetTick() - last_loop_time;
+    average_loop_time_count++;
+    last_loop_time = HAL_GetTick();
+    
+    osDelay(10);
   }
   /* USER CODE END mainTask */
 }
@@ -147,13 +195,57 @@ void StartDefaultTask(void *argument)
 void StartCommunicationTask(void *argument)
 {
   /* USER CODE BEGIN communicationTask */
+    while(init_cplt == 0){
+      osDelay(100);
+    }
   /* Infinite loop */
   for(;;)
   {
-    output_log(LOG_LEVEL_IMPORTANT, "{\"time\":%ld, \"state\":%d, \"pressure\":%f}", HAL_GetTick(), state.state, env_data.press);
-    osDelay(1000);
+    if(wireless_data.data[0] == 'r'){
+      state_update(STATE_READY);
+
+    }else if(wireless_data.data[0] == 'e'){
+      state_update(STATE_EMERGENCY);
+    }else if(wireless_data.data[0] == 's'){
+      state_update(STATE_SAFETY);
+    }else if(wireless_data.data[0] == 'f'){
+      state_update(STATE_FLIGHT);
+    }
+    output_log(LOG_LEVEL_IMPORTANT, "{\"time\":%ld, \"state\":%d, \"pressure\":%d.%03d, \"voltage\":%d.%03d, \"delta_press\":%d.%03d}", HAL_GetTick(), state.state, FLOAT_PRINT(env_data.press_filtered), FLOAT_PRINT(battery_data.voltage), FLOAT_PRINT((env_data.delta_press*100000)));
+    osDelay(500);
+    output_log(LOG_LEVEL_IMPORTANT, "{\"wireless_data\":%s, \"average_loop_time\":%ld}", wireless_data.data, average_loop_time / average_loop_time_count);
+    average_loop_time = 0;
+    average_loop_time_count = 0;
+    last_loop_time = HAL_GetTick();
+    
+    wireless_data.size = 0;
+    memset(wireless_data.data, 0, sizeof(wireless_data.data));
+    osDelay(500);
+
   }
   /* USER CODE END communicationTask */
+}
+
+/* USER CODE BEGIN Header_StartUartPollTask */
+/**
+* @brief Function implementing the uartPollTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartUartPollTask */
+void StartUartPollTask(void *argument)
+{
+  /* USER CODE BEGIN uartPollTask */
+  while(init_cplt == 0){
+    osDelay(100);
+  }
+  /* Infinite loop */
+  for(;;)
+  {
+    check_wireless();
+    osDelay(1);
+  }
+  /* USER CODE END uartPollTask */
 }
 
 /* Private application code --------------------------------------------------*/

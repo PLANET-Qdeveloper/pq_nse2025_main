@@ -1,6 +1,10 @@
 #include "state.h"
+#include "environment.h"
+#include "battery.h"
 
-
+extern battery_data_t battery_data;
+extern env_data_t env_data;
+float previous_voltage = 0;
 
 state_t state;
 
@@ -16,7 +20,10 @@ void state_check(){
         case STATE_SAFETY:
             break;
         case STATE_READY:
-
+            if(battery_data.voltage < 13.0 && previous_voltage > 13.0){
+                state_update(STATE_BURNING);
+            }
+            previous_voltage = battery_data.voltage;
             break;
         case STATE_BURNING:
             time_duration = HAL_GetTick() - state.time;
@@ -27,6 +34,9 @@ void state_check(){
         case STATE_FLIGHT:
             time_duration = HAL_GetTick() - state.time;
             if (time_duration > STATE_FLIGHT_TIME){
+                state_update(STATE_DECERELATION);
+            }
+            if(env_data.delta_press * 100000 > 35.0f){
                 state_update(STATE_DECERELATION);
             }
             break;

@@ -1,7 +1,9 @@
 #include "wireless.h"
 
+
 struct LoRa_Handler LoRaTX = {0};
 extern UART_HandleTypeDef huart1;
+extern uint8_t lora_receive_byte;
 wireless_data_t wireless_data;
 
 int init_wireless(){
@@ -18,13 +20,16 @@ int init_wireless(){
 
     struct LoRa_Configuration LoRaConf = {0};
 
+
     HAL_GPIO_WritePin(POW_COM_GPIO_Port, POW_COM_Pin, GPIO_PIN_SET);
     E22_Reset(&LoRaTX, &LoRaConf, 0);
     E22_Config_Init(&LoRaConf);
-    LoRaConf.Uart_baud_rate = UART_BAUDRATE_115200;
+    LoRaConf.Uart_baud_rate = UART_BAUDRATE_9600;
+    LoRaConf.Air_data_rate = AIR_DATA_RATE_62500;
     E22_Config_Set(&LoRaTX, &LoRaConf);
     uint8_t data[8] = {0};
     E22_Register_Read_all(&LoRaTX, &LoRaConf, data);
+    
     return 0;
 }
 
@@ -42,5 +47,15 @@ int add_buffer_wireless(uint8_t *data, uint16_t size){
     }
     memcpy(wireless_data.data + wireless_data.size, data, size);
     wireless_data.size += size;
+    return 0;
+}
+
+int check_wireless(){
+    uint8_t data[1] = {0};
+    int res = E22_Payload_Receive(&LoRaTX, data, 1);
+    while(res == HAL_OK){
+        add_buffer_wireless(data, 1);
+        res = E22_Payload_Receive(&LoRaTX, data, 1);
+    }
     return 0;
 }

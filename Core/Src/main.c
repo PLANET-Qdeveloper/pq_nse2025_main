@@ -38,6 +38,7 @@
 #include "environment.h"
 #include "wireless.h"
 #include "logger.h"
+#include "FreeRTOS.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -66,11 +67,13 @@
 extern struct bno055_t bno055;
 extern struct bme280_t bme280;
 extern struct LoRa_Handler LoRaTX;
+uint8_t lora_receive_byte[128];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
+static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 void Set_OSPI_MemoryMappedMode(void);
 /* USER CODE END PFP */
@@ -122,20 +125,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   MX_UART4_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   // Flash memory and LittleFS test code
-  init_wireless();
-  init_flash();
 
-  output_log(LOG_LEVEL_IMPORTANT, "Booted core function: %ld", HAL_GetTick());
-
-
-  // init gnss
-  HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_RESET);
-  osDelay(100);
-  HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_SET);
-  init_imu();
-  init_env_data();
   
 
   
@@ -222,6 +217,20 @@ void SystemClock_Config(void)
   /** Configure the programming delay
   */
   __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);
+}
+
+/**
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* USART2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
+  /* USART1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USART1_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
@@ -411,6 +420,31 @@ int _write(int file, char *ptr, int len)
   return len;
 }
 
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  if (huart->Instance == USART1)
+  {
+    add_buffer_wireless(lora_receive_byte, 128);
+    HAL_UARTEx_ReceiveToIdle_IT(&huart1, lora_receive_byte, 128);
+  }
+  if(xHigherPriorityTaskWoken == pdTRUE)
+  {
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  if (huart->Instance == USART1)
+  {
+    add_buffer_wireless(lora_receive_byte, 128);
+    HAL_UARTEx_ReceiveToIdle_IT(&huart1, lora_receive_byte, 128);
+  }
+  if(xHigherPriorityTaskWoken == pdTRUE)
+  {
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
+}
 /* USER CODE END 4 */
 
 /**

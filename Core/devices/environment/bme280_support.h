@@ -13,7 +13,9 @@
 typedef struct{
     float temp;
     float press;
-    float hum;
+    float temp_filtered;
+    float press_filtered;
+    float delta_press;
     uint32_t timestamp;
 } env_data_t;
 
