@@ -51,8 +51,8 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, RESET_IMU_Pin|M0_Pin|EMOUT_Pin|M1_Pin
-                          |POW_COM_Pin|RESET_GNSS_Pin|POW_VALVE_Pin|LOOUT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, RESET_IMU_Pin|M0_Pin|M1_Pin|POW_COM_Pin
+                          |RESET_GNSS_Pin|POW_VALVE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, CS1_Pin|RESET_LORA_Pin, GPIO_PIN_RESET);
@@ -60,10 +60,8 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SS2_GPIO_Port, SS2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : RESET_IMU_Pin EMOUT_Pin POW_COM_Pin RESET_GNSS_Pin
-                           POW_VALVE_Pin LOOUT_Pin */
-  GPIO_InitStruct.Pin = RESET_IMU_Pin|EMOUT_Pin|POW_COM_Pin|RESET_GNSS_Pin
-                          |POW_VALVE_Pin|LOOUT_Pin;
+  /*Configure GPIO pins : RESET_IMU_Pin POW_COM_Pin RESET_GNSS_Pin POW_VALVE_Pin */
+  GPIO_InitStruct.Pin = RESET_IMU_Pin|POW_COM_Pin|RESET_GNSS_Pin|POW_VALVE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -98,7 +96,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : AUX_Pin */
   GPIO_InitStruct.Pin = AUX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(AUX_GPIO_Port, &GPIO_InitStruct);
 

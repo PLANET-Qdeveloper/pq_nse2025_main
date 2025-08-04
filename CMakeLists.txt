@@ -36,6 +36,43 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
+# Static Analysis Configuration
+option(ENABLE_STATIC_ANALYSIS "Enable static code analysis" OFF)
+
+if(ENABLE_STATIC_ANALYSIS)
+    find_program(CPPCHECK_EXECUTABLE cppcheck)
+    if(CPPCHECK_EXECUTABLE)
+        set(CPPCHECK_OPTIONS
+            --enable=all
+            --std=c11
+            --platform=unix32
+            --suppress=missingIncludeSystem
+            --suppress=unusedFunction
+            --suppress=unmatchedSuppression
+            --inline-suppr
+            --quiet
+            --error-exitcode=1
+        )
+        
+        # Create custom target for static analysis
+        add_custom_target(static-analysis
+            COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_OPTIONS} 
+                ${CMAKE_SOURCE_DIR}/Core/
+            COMMENT "Running static code analysis with cppcheck"
+            VERBATIM
+        )
+        
+        # Optional: Run static analysis before build
+        if(RUN_STATIC_ANALYSIS_ON_BUILD)
+            add_dependencies(${CMAKE_PROJECT_NAME} static-analysis)
+        endif()
+        
+        message(STATUS "Static analysis enabled with cppcheck")
+    else()
+        message(WARNING "cppcheck not found. Static analysis disabled.")
+    endif()
+endif()
+
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
 
@@ -47,6 +84,9 @@ set(CMSISCORE ${CMAKE_SOURCE_DIR}/Drivers/CMSIS)
 add_subdirectory(${CMAKE_SOURCE_DIR}/cmsis-dsp/Source)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/cmsis-dsp/Include)
 
+# Add lwgps library
+add_subdirectory(${CMAKE_SOURCE_DIR}/lwgps/lwgps)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lwgps/lwgps/src/include/lwgps)
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
@@ -73,9 +113,13 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/devices/wireless/wireless.c
     ${CMAKE_SOURCE_DIR}/Core/devices/software/cli.c
     ${CMAKE_SOURCE_DIR}/Core/devices/software/state.c
-    ${CMAKE_SOURCE_DIR}/Core/devices/software/apogee.c  
     ${CMAKE_SOURCE_DIR}/Core/devices/software/logger.c
     ${CMAKE_SOURCE_DIR}/Core/devices/battery/battery.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/can/can.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/gnss/gnss.c
+    
+    # Add ubxlib sources
+    ${UBXLIB_SOURCES}
 )
 
 # Add include paths
@@ -89,6 +133,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/devices/wireless/
     ${CMAKE_SOURCE_DIR}/Core/devices/software/
     ${CMAKE_SOURCE_DIR}/Core/devices/battery/
+    ${CMAKE_SOURCE_DIR}/Core/devices/can/
+    
 )
 
 # Add project symbols (macros)
@@ -100,6 +146,6 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
     CMSISDSP
-
+    lwgps
     # Add user defined libraries
 )

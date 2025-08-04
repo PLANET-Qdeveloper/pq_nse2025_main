@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+
 extern lfs_t lfs;
 uint32_t boot_count = 0;
 const char* log_file_name = LOG_FILE_NAME;
@@ -11,13 +12,12 @@ uint8_t buffer[FILE_SIZE]={0};
 lfs_file_t fp_log;
 lfs_file_t fp;
 
-
+int flash_error_count = 0;
 
 int init_flash(){
     // Initialize XSPI Flash
   if (CSP_XSPI_Init() != HAL_OK) {
         output_log(LOG_LEVEL_ERROR, "XSPI init failed");
-        Error_Handler();
     }
     // Read Flash ID
     uint32_t id=0;
@@ -39,18 +39,15 @@ int init_flash(){
 
 
     if ((err = stmlfs_file_open(&fp, BOOT_COUNT_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT)) < 0) {
-            output_log(LOG_LEVEL_ERROR, "open failed %d\n", err);
-            Error_Handler();
+            flash_error_count++;
     }
 
     if ((err = stmlfs_file_open(&fp_log, LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND)) < 0) {
-            output_log(LOG_LEVEL_ERROR, "open failed %d\n", err);
-            Error_Handler();
+            flash_error_count++;
     }
 
     if ((err = stmlfs_file_read(&fp, &boot_count, sizeof(boot_count))) < 0) {
-        output_log(LOG_LEVEL_ERROR, "read failed %d\n", err);
-        Error_Handler();
+        flash_error_count++;
     }
     boot_count++;
     stmlfs_file_rewind(&fp);
@@ -69,25 +66,24 @@ int init_flash(){
 
     size_t line_length = sprintf(buffer, "Flash init. id: %08lx, uid: %02x%02x%02x%02x%02x%02x%02x%02x, boot_count: %d\n", id, uid[0], uid[1], uid[2], uid[3], uid[4], uid[5], uid[6], uid[7], boot_count);
     if((err = stmlfs_file_write(&fp_log, buffer, line_length)) < 0) {
-        output_log(LOG_LEVEL_ERROR, "write failed %d\n", err);
-        Error_Handler();
+        flash_error_count++;
     }
     line_length = sprintf(buffer, "Flash: blocks %d, block size %d, used %d\n", (int)stat.block_count, (int)stat.block_size, (int)stat.blocks_used);
     if((err = stmlfs_file_write(&fp_log, buffer, line_length)) < 0) {
-        output_log(LOG_LEVEL_ERROR, "write failed %d\n", err);
-        Error_Handler();
+        flash_error_count++;
     }
 
     if ((err = stmlfs_file_close(&fp_log)) < 0) {
-        output_log(LOG_LEVEL_ERROR, "close failed %d\n", err);
-        Error_Handler();
+        flash_error_count++;
     }
 }
 
 int write_flash_log(uint8_t *data, uint32_t size){
+    taskENTER_CRITICAL();
     int comres = stmlfs_file_open(&fp_log, LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
     comres += stmlfs_file_write(&fp_log, data, size);
     comres += stmlfs_file_close(&fp_log);
+    taskEXIT_CRITICAL();
     return comres;
 }
 
@@ -95,30 +91,33 @@ int write_flash_log(uint8_t *data, uint32_t size){
 
 int flash_write(uint8_t *data, uint32_t size, const char *filename)
 {
+    taskENTER_CRITICAL();
     lfs_file_t file;
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
     if (err < 0) return err;
     
     lfs_ssize_t written = lfs_file_write(&lfs, &file, data, size);
     lfs_file_close(&lfs, &file);
-    
+    taskEXIT_CRITICAL();
     return (written < 0) ? written : 0;
 }
 
 int flash_read(uint8_t *data, uint32_t size, const char *filename)
 {
+    taskENTER_CRITICAL();
     lfs_file_t file;
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDONLY);
     if (err < 0) return err;
     
     lfs_ssize_t bytes_read = lfs_file_read(&lfs, &file, data, size);
     lfs_file_close(&lfs, &file);
-    
+    taskEXIT_CRITICAL();
     return (bytes_read < 0) ? bytes_read : 0;
 }
 
 int flash_filelist(const char *path, char *buffer, uint32_t buffer_size)
 {
+    taskENTER_CRITICAL();
     lfs_dir_t dir;
     struct lfs_info info;
     int err = lfs_dir_open(&lfs, &dir, path);
@@ -141,31 +140,43 @@ int flash_filelist(const char *path, char *buffer, uint32_t buffer_size)
     else buffer[0] = '\0';
     
     lfs_dir_close(&lfs, &dir);
+    taskEXIT_CRITICAL();
     return 0;
 }
 
 int flash_mkdir(const char *path)
 {
-    return lfs_mkdir(&lfs, path);
+    taskENTER_CRITICAL();
+    int err = lfs_mkdir(&lfs, path);
+    taskEXIT_CRITICAL();
+    return err;
 }
 
 int flash_rm(const char *path)
 {
-    return lfs_remove(&lfs, path);
+    taskENTER_CRITICAL();
+    int err = lfs_remove(&lfs, path);
+    taskEXIT_CRITICAL();
+    return err;
 }
 
 int flash_rmdir(const char *path)
 {
-    return lfs_remove(&lfs, path);
+    taskENTER_CRITICAL();
+    int err = lfs_remove(&lfs, path);
+    taskEXIT_CRITICAL();
+    return err;
 }
 
 int flash_touch(const char *filename)
 {
+    taskENTER_CRITICAL();
     lfs_file_t file;
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_CREAT | LFS_O_RDWR);
     if (err < 0) return err;
     
     lfs_file_close(&lfs, &file);
+    taskEXIT_CRITICAL();
     return 0;
 }
 
@@ -182,6 +193,7 @@ int flash_set_log_file(const char *filename)
 
 int flash_stream_open(flash_stream_t *stream, const char *filename)
 {
+    taskENTER_CRITICAL();
     int err = lfs_file_open(&lfs, &stream->file, filename, LFS_O_RDONLY);
     if (err < 0) return err;
     
@@ -189,11 +201,13 @@ int flash_stream_open(flash_stream_t *stream, const char *filename)
     lfs_soff_t size = lfs_file_size(&lfs, &stream->file);
     stream->size = (size < 0) ? 0 : size;
     
+    taskEXIT_CRITICAL();
     return 0;
 }
 
 int flash_stream_read(flash_stream_t *stream, uint8_t *buffer, uint32_t size)
 {
+    taskENTER_CRITICAL();
     if (stream->pos >= stream->size) {
         return 0;
     }
@@ -205,18 +219,22 @@ int flash_stream_read(flash_stream_t *stream, uint8_t *buffer, uint32_t size)
     if (bytes_read > 0) {
         stream->pos += bytes_read;
     }
-    
+    taskEXIT_CRITICAL();
     return bytes_read;
 }
 
 int flash_stream_close(flash_stream_t *stream)
 {
-    return lfs_file_close(&lfs, &stream->file);
+    taskENTER_CRITICAL();
+    int err = lfs_file_close(&lfs, &stream->file);
+    taskEXIT_CRITICAL();
+    return err;
 }
 
 
 uint32_t flash_get_free_size(void)
 {
+    taskENTER_CRITICAL();
     struct lfs_fsinfo fsinfo;
     int err = lfs_fs_stat(&lfs, &fsinfo);
     if (err < 0) return 0;
@@ -225,5 +243,6 @@ uint32_t flash_get_free_size(void)
     if (used_blocks < 0) return 0;
     
     uint32_t free_blocks = fsinfo.block_count - used_blocks;
+    taskEXIT_CRITICAL();
     return free_blocks * fsinfo.block_size;
 }

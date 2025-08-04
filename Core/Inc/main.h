@@ -72,8 +72,6 @@ void Error_Handler(void);
 #define M0_GPIO_Port GPIOC
 #define CS1_Pin GPIO_PIN_4
 #define CS1_GPIO_Port GPIOA
-#define EMOUT_Pin GPIO_PIN_4
-#define EMOUT_GPIO_Port GPIOC
 #define M1_Pin GPIO_PIN_5
 #define M1_GPIO_Port GPIOC
 #define SS2_Pin GPIO_PIN_1
@@ -88,10 +86,9 @@ void Error_Handler(void);
 #define PG_GPIO_Port GPIOC
 #define AUX_Pin GPIO_PIN_8
 #define AUX_GPIO_Port GPIOA
+#define AUX_EXTI_IRQn EXTI8_IRQn
 #define RESET_LORA_Pin GPIO_PIN_9
 #define RESET_LORA_GPIO_Port GPIOA
-#define LOOUT_Pin GPIO_PIN_10
-#define LOOUT_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
 

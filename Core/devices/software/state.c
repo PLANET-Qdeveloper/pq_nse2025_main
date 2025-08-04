@@ -4,6 +4,7 @@
 
 extern battery_data_t battery_data;
 extern env_data_t env_data;
+extern UART_HandleTypeDef huart3;
 float previous_voltage = 0;
 
 state_t state;
@@ -50,7 +51,7 @@ void state_check(){
 
             break;
         case STATE_EMERGENCY:
-
+            HAL_UART_Transmit(&huart3, (uint8_t *)"E", 1, 10);
             break;
     }
     

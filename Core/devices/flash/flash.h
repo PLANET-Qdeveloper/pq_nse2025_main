@@ -6,6 +6,11 @@
 #include "lfs.h"
 #include "logger.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os2.h"
+
 #define BOOT_COUNT_FILE_NAME "boot_count.txt"
 #define LOG_FILE_NAME "log.txt"
 

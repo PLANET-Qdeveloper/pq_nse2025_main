@@ -67,11 +67,12 @@
 extern struct bno055_t bno055;
 extern struct bme280_t bme280;
 extern struct LoRa_Handler LoRaTX;
-uint8_t lora_receive_byte[128];
+volatile uint8_t lora_receive_byte[2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void PeriphCommonClock_Config(void);
 void MX_FREERTOS_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
@@ -106,6 +107,9 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  /* Configure the peripherals common clocks */
+  PeriphCommonClock_Config();
+
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
@@ -125,12 +129,13 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   MX_UART4_Init();
+  MX_USART3_UART_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   // Flash memory and LittleFS test code
-
+  /// 0x1
   
 
   
@@ -220,6 +225,35 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief Peripherals Common Clock Configuration
+  * @retval None
+  */
+void PeriphCommonClock_Config(void)
+{
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+
+  /** Initializes the peripherals clock
+  */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN|RCC_PERIPHCLK_SPI2;
+  PeriphClkInitStruct.PLL2.PLL2Source = RCC_PLL2_SOURCE_CSI;
+  PeriphClkInitStruct.PLL2.PLL2M = 1;
+  PeriphClkInitStruct.PLL2.PLL2N = 60;
+  PeriphClkInitStruct.PLL2.PLL2P = 10;
+  PeriphClkInitStruct.PLL2.PLL2Q = 2;
+  PeriphClkInitStruct.PLL2.PLL2R = 20;
+  PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2_VCIRANGE_2;
+  PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2_VCORANGE_WIDE;
+  PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
+  PeriphClkInitStruct.PLL2.PLL2ClockOut = RCC_PLL2_DIVP|RCC_PLL2_DIVQ;
+  PeriphClkInitStruct.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL2Q;
+  PeriphClkInitStruct.Spi2ClockSelection = RCC_SPI2CLKSOURCE_PLL2P;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
   * @brief NVIC Configuration.
   * @retval None
   */
@@ -229,8 +263,11 @@ static void MX_NVIC_Init(void)
   HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USART1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(USART1_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(USART1_IRQn);
+  /* EXTI8_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(EXTI8_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI8_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
@@ -420,25 +457,14 @@ int _write(int file, char *ptr, int len)
   return len;
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  if (huart->Instance == USART1)
-  {
-    add_buffer_wireless(lora_receive_byte, 128);
-    HAL_UARTEx_ReceiveToIdle_IT(&huart1, lora_receive_byte, 128);
-  }
-  if(xHigherPriorityTaskWoken == pdTRUE)
-  {
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
-}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   if (huart->Instance == USART1)
   {
-    add_buffer_wireless(lora_receive_byte, 128);
-    HAL_UARTEx_ReceiveToIdle_IT(&huart1, lora_receive_byte, 128);
+    add_buffer_wireless(lora_receive_byte, 1);
+    HAL_UART_Receive_IT(&huart1, lora_receive_byte, 1);
   }
   if(xHigherPriorityTaskWoken == pdTRUE)
   {

@@ -57,6 +57,8 @@ extern "C" {
 extern osThreadId_t mainTaskHandle;
 extern osThreadId_t communicationTaskHandle;
 extern osThreadId_t uartPollTaskHandle;
+extern osThreadId_t gnssTaskHandle;
+extern osThreadId_t sepTaskHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -66,6 +68,8 @@ extern osThreadId_t uartPollTaskHandle;
 void StartDefaultTask(void *argument);
 void StartCommunicationTask(void *argument);
 void StartUartPollTask(void *argument);
+void StartGnssTask(void *argument);
+void StartSepTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 

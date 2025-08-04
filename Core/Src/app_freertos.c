@@ -30,10 +30,12 @@
 #include "state.h"
 #include "logger.h"
 #include "flash.h"
-#include "apogee.h"
 #include "wireless.h"
 #include "float_print.h"
 #include "battery.h"
+#include "can.h"
+#include "state.h"
+#include "cyclecounter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +48,8 @@ extern battery_data_t battery_data;
 extern wireless_data_t wireless_data;
 extern UART_HandleTypeDef huart1;
 extern uint8_t lora_receive_byte;
+extern UART_HandleTypeDef huart3;
+extern gnss_data_t gnss_data;
 uint32_t last_loop_time = 0;
 uint32_t average_loop_time = 0;
 uint32_t average_loop_time_count = 0;
@@ -85,6 +89,20 @@ osThreadId_t uartPollTaskHandle;
 const osThreadAttr_t uartPollTask_attributes = {
   .name = "uartPollTask",
   .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 128 * 4
+};
+/* Definitions for gnssTask */
+osThreadId_t gnssTaskHandle;
+const osThreadAttr_t gnssTask_attributes = {
+  .name = "gnssTask",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 512 * 4
+};
+/* Definitions for sepTask */
+osThreadId_t sepTaskHandle;
+const osThreadAttr_t sepTask_attributes = {
+  .name = "sepTask",
+  .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
 
@@ -127,6 +145,12 @@ void MX_FREERTOS_Init(void) {
   /* creation of uartPollTask */
   uartPollTaskHandle = osThreadNew(StartUartPollTask, NULL, &uartPollTask_attributes);
 
+  /* creation of gnssTask */
+  gnssTaskHandle = osThreadNew(StartGnssTask, NULL, &gnssTask_attributes);
+
+  /* creation of sepTask */
+  sepTaskHandle = osThreadNew(StartSepTask, NULL, &sepTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -159,8 +183,11 @@ void StartDefaultTask(void *argument)
   HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_RESET);
   osDelay(100);
   HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_SET);
+  init_gnss();
   init_imu();
   init_env_data();
+  can_init();
+  HAL_GPIO_WritePin(POW_VALVE_GPIO_Port, POW_VALVE_Pin, GPIO_PIN_SET);
   output_log(LOG_LEVEL_IMPORTANT, "Init completed: %ld", HAL_GetTick());
   init_cplt = 1;
   
@@ -175,11 +202,25 @@ void StartDefaultTask(void *argument)
     update_env_data();
     update_imu_data();
     state_check();
+    if(wireless_data.data[0] == 'r'){
+      state_update(STATE_READY);
+    }else if(wireless_data.data[0] == 'e'){
+      state_update(STATE_EMERGENCY);
+    }else if(wireless_data.data[0] == 's'){
+      state_update(STATE_SAFETY);
+    }else if(wireless_data.data[0] == 'f'){
+      state_update(STATE_FLIGHT);
+    }else if(wireless_data.data[0] == 'd'){
+      state_update(STATE_DECERELATION);
+    }else if(wireless_data.data[0] == 'b'){
+      state_update(STATE_BURNING);
+    }else if(wireless_data.data[0] == 'l'){
+      HAL_UART_Transmit(&huart3, (uint8_t *)"L", 1, 10);
+    }
     update_battery_data();
     average_loop_time += HAL_GetTick() - last_loop_time;
     average_loop_time_count++;
     last_loop_time = HAL_GetTick();
-    
     osDelay(10);
   }
   /* USER CODE END mainTask */
@@ -201,23 +242,26 @@ void StartCommunicationTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    if(wireless_data.data[0] == 'r'){
-      state_update(STATE_READY);
 
-    }else if(wireless_data.data[0] == 'e'){
-      state_update(STATE_EMERGENCY);
-    }else if(wireless_data.data[0] == 's'){
-      state_update(STATE_SAFETY);
-    }else if(wireless_data.data[0] == 'f'){
-      state_update(STATE_FLIGHT);
-    }
-    output_log(LOG_LEVEL_IMPORTANT, "{\"time\":%ld, \"state\":%d, \"pressure\":%d.%03d, \"voltage\":%d.%03d, \"delta_press\":%d.%03d}", HAL_GetTick(), state.state, FLOAT_PRINT(env_data.press_filtered), FLOAT_PRINT(battery_data.voltage), FLOAT_PRINT((env_data.delta_press*100000)));
+    output_log(LOG_LEVEL_IMPORTANT, "{\"time\":%ld, \"state\":%d, \"pressure\":%d.%03d, \"voltage\":%d.%03d, \"delta_press\":%d.%03d}x", HAL_GetTick(), state.state, FLOAT_PRINT(env_data.press_filtered), FLOAT_PRINT(battery_data.voltage), FLOAT_PRINT((env_data.delta_press*100000)));
     osDelay(500);
-    output_log(LOG_LEVEL_IMPORTANT, "{\"wireless_data\":%s, \"average_loop_time\":%ld}", wireless_data.data, average_loop_time / average_loop_time_count);
+    output_log(LOG_LEVEL_IMPORTANT, "{\"wireless_data\":%s, \"average_loop_time\":%ld}", wireless_data.data, average_loop_time * 1000 / average_loop_time_count);
+    osDelay(500);
+    output_log(LOG_LEVEL_IMPORTANT, "{\"latitude\":%d.%03d, \"longitude\":%d.%03d, \"altitude\":%d.%03d, \"num_sats\":%d, \"hdop\":%d.%03d}", FLOAT_PRINT(gnss_data.latitude), FLOAT_PRINT(gnss_data.longitude), FLOAT_PRINT(gnss_data.altitude), gnss_data.num_sats, FLOAT_PRINT(gnss_data.hdop));
     average_loop_time = 0;
     average_loop_time_count = 0;
     last_loop_time = HAL_GetTick();
-    
+
+    if(state.state == STATE_DECERELATION){
+      uint8_t data[] = "S";
+      can_send(0x123, data, 1);
+    }
+    if(state.state == STATE_READY){
+      HAL_UART_Transmit(&huart3, (uint8_t *)"R", 1, 10);
+    }
+
+
+
     wireless_data.size = 0;
     memset(wireless_data.data, 0, sizeof(wireless_data.data));
     osDelay(500);
@@ -246,6 +290,52 @@ void StartUartPollTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END uartPollTask */
+}
+
+/* USER CODE BEGIN Header_StartGnssTask */
+/**
+* @brief Function implementing the gnssTask04 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartGnssTask */
+void StartGnssTask(void *argument)
+{
+  /* USER CODE BEGIN gnssTask */
+  while(init_cplt == 0){
+    osDelay(100);
+  }
+  /* Infinite loop */
+  for(;;)
+  {
+    update_gnss_data();
+    osDelay(1000);
+  }
+  /* USER CODE END gnssTask */
+}
+
+/* USER CODE BEGIN Header_StartSepTask */
+/**
+* @brief Function implementing the sepTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartSepTask */
+void StartSepTask(void *argument)
+{
+  /* USER CODE BEGIN sepTask */
+  while(init_cplt == 0){
+    osDelay(100);
+  }
+  /* Infinite loop */
+  for(;;)
+  {
+    uint8_t data[4] = {0};
+    memcpy(data, &env_data.press_filtered, 4);
+    can_send(0x124, data, 4);
+    osDelay(100);
+  }
+  /* USER CODE END sepTask */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "constant.h"
+#include "can.h"
 
 typedef enum {
     STATE_SAFETY,
