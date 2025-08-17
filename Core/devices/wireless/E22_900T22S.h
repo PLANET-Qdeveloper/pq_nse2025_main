@@ -18,7 +18,10 @@
 #define INCLUDED_E22_900T22S
 
 #include "main.h"
-
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os2.h"
 
 /// @brief UART Baud rate setting
 enum UART_BAUDRATE {

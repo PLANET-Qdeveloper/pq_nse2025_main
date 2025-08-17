@@ -87,6 +87,10 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/cms
 # Add lwgps library
 add_subdirectory(${CMAKE_SOURCE_DIR}/lwgps/lwgps)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lwgps/lwgps/src/include/lwgps)
+
+# Add pq_com_format library
+add_subdirectory(${CMAKE_SOURCE_DIR}/pq_com_format)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/pq_com_format/lib/include)
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
@@ -117,7 +121,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/devices/battery/battery.c
     ${CMAKE_SOURCE_DIR}/Core/devices/can/can.c
     ${CMAKE_SOURCE_DIR}/Core/devices/gnss/gnss.c
-    
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/valve.c
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/binary_packet.c
     # Add ubxlib sources
     ${UBXLIB_SOURCES}
 )
@@ -134,7 +139,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/devices/software/
     ${CMAKE_SOURCE_DIR}/Core/devices/battery/
     ${CMAKE_SOURCE_DIR}/Core/devices/can/
-    
+    ${CMAKE_SOURCE_DIR}/Core/devices/software/
 )
 
 # Add project symbols (macros)
@@ -147,5 +152,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
     CMSISDSP
     lwgps
+    pq_com_format
     # Add user defined libraries
+)
+
+
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${CMAKE_PROJECT_NAME}> $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/${CMAKE_PROJECT_NAME}.bin
+    COMMENT "Generating ${CMAKE_PROJECT_NAME}.bin from ELF file"
 )

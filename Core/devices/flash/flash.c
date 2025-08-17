@@ -79,11 +79,11 @@ int init_flash(){
 }
 
 int write_flash_log(uint8_t *data, uint32_t size){
-    taskENTER_CRITICAL();
+
     int comres = stmlfs_file_open(&fp_log, LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
     comres += stmlfs_file_write(&fp_log, data, size);
     comres += stmlfs_file_close(&fp_log);
-    taskEXIT_CRITICAL();
+    
     return comres;
 }
 
@@ -91,33 +91,33 @@ int write_flash_log(uint8_t *data, uint32_t size){
 
 int flash_write(uint8_t *data, uint32_t size, const char *filename)
 {
-    taskENTER_CRITICAL();
+
     lfs_file_t file;
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
     if (err < 0) return err;
     
     lfs_ssize_t written = lfs_file_write(&lfs, &file, data, size);
     lfs_file_close(&lfs, &file);
-    taskEXIT_CRITICAL();
+    
     return (written < 0) ? written : 0;
 }
 
 int flash_read(uint8_t *data, uint32_t size, const char *filename)
 {
-    taskENTER_CRITICAL();
+
     lfs_file_t file;
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDONLY);
     if (err < 0) return err;
     
     lfs_ssize_t bytes_read = lfs_file_read(&lfs, &file, data, size);
     lfs_file_close(&lfs, &file);
-    taskEXIT_CRITICAL();
+    
     return (bytes_read < 0) ? bytes_read : 0;
 }
 
 int flash_filelist(const char *path, char *buffer, uint32_t buffer_size)
 {
-    taskENTER_CRITICAL();
+
     lfs_dir_t dir;
     struct lfs_info info;
     int err = lfs_dir_open(&lfs, &dir, path);
@@ -140,43 +140,43 @@ int flash_filelist(const char *path, char *buffer, uint32_t buffer_size)
     else buffer[0] = '\0';
     
     lfs_dir_close(&lfs, &dir);
-    taskEXIT_CRITICAL();
+    
     return 0;
 }
 
 int flash_mkdir(const char *path)
 {
-    taskENTER_CRITICAL();
+
     int err = lfs_mkdir(&lfs, path);
-    taskEXIT_CRITICAL();
+    
     return err;
 }
 
 int flash_rm(const char *path)
 {
-    taskENTER_CRITICAL();
+
     int err = lfs_remove(&lfs, path);
-    taskEXIT_CRITICAL();
+    
     return err;
 }
 
 int flash_rmdir(const char *path)
 {
-    taskENTER_CRITICAL();
+
     int err = lfs_remove(&lfs, path);
-    taskEXIT_CRITICAL();
+    
     return err;
 }
 
 int flash_touch(const char *filename)
 {
-    taskENTER_CRITICAL();
+
     lfs_file_t file;
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_CREAT | LFS_O_RDWR);
     if (err < 0) return err;
     
     lfs_file_close(&lfs, &file);
-    taskEXIT_CRITICAL();
+    
     return 0;
 }
 
@@ -193,7 +193,7 @@ int flash_set_log_file(const char *filename)
 
 int flash_stream_open(flash_stream_t *stream, const char *filename)
 {
-    taskENTER_CRITICAL();
+
     int err = lfs_file_open(&lfs, &stream->file, filename, LFS_O_RDONLY);
     if (err < 0) return err;
     
@@ -201,13 +201,13 @@ int flash_stream_open(flash_stream_t *stream, const char *filename)
     lfs_soff_t size = lfs_file_size(&lfs, &stream->file);
     stream->size = (size < 0) ? 0 : size;
     
-    taskEXIT_CRITICAL();
+    
     return 0;
 }
 
 int flash_stream_read(flash_stream_t *stream, uint8_t *buffer, uint32_t size)
 {
-    taskENTER_CRITICAL();
+
     if (stream->pos >= stream->size) {
         return 0;
     }
@@ -219,22 +219,22 @@ int flash_stream_read(flash_stream_t *stream, uint8_t *buffer, uint32_t size)
     if (bytes_read > 0) {
         stream->pos += bytes_read;
     }
-    taskEXIT_CRITICAL();
+    
     return bytes_read;
 }
 
 int flash_stream_close(flash_stream_t *stream)
 {
-    taskENTER_CRITICAL();
+
     int err = lfs_file_close(&lfs, &stream->file);
-    taskEXIT_CRITICAL();
+    
     return err;
 }
 
 
 uint32_t flash_get_free_size(void)
 {
-    taskENTER_CRITICAL();
+
     struct lfs_fsinfo fsinfo;
     int err = lfs_fs_stat(&lfs, &fsinfo);
     if (err < 0) return 0;
@@ -243,6 +243,6 @@ uint32_t flash_get_free_size(void)
     if (used_blocks < 0) return 0;
     
     uint32_t free_blocks = fsinfo.block_count - used_blocks;
-    taskEXIT_CRITICAL();
+    
     return free_blocks * fsinfo.block_size;
 }

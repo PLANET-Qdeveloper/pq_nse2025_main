@@ -41,7 +41,10 @@
 
 #include <stdint.h>
 #include "bno055.h"
-
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os2.h"
 typedef struct{
     float accel_x;
     float accel_y;

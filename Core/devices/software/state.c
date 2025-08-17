@@ -6,6 +6,7 @@ extern battery_data_t battery_data;
 extern env_data_t env_data;
 extern UART_HandleTypeDef huart3;
 float previous_voltage = 0;
+int voltage_count = 0;
 
 state_t state;
 
@@ -21,8 +22,13 @@ void state_check(){
         case STATE_SAFETY:
             break;
         case STATE_READY:
-            if(battery_data.voltage < 13.0 && previous_voltage > 13.0){
-                state_update(STATE_BURNING);
+            if(battery_data.voltage < 12.7 && previous_voltage > 12.7){
+                voltage_count++;
+                if(voltage_count > 10){
+                    state_update(STATE_BURNING);
+                }
+            }else{
+                voltage_count = 0;
             }
             previous_voltage = battery_data.voltage;
             break;
@@ -51,7 +57,6 @@ void state_check(){
 
             break;
         case STATE_EMERGENCY:
-            HAL_UART_Transmit(&huart3, (uint8_t *)"E", 1, 10);
             break;
     }
     

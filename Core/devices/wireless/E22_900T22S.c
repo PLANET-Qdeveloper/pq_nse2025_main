@@ -22,7 +22,7 @@ void E22_Config_Init(struct LoRa_Configuration *conf) {
 	conf->Uart_baud_rate = UART_BAUDRATE_9600;
 	conf->Serial_parity = SERIAL_PARITY_8N1;
 	conf->Air_data_rate = AIR_DATA_RATE_2400_1;
-	conf->Subpacket_size = SUB_PACKET_SIZE_128;
+	conf->Subpacket_size = SUB_PACKET_SIZE_200;
 	conf->Rssi_noise = RSSI_NOISE_DISABLED;
 	conf->Reserved = LORA_RESERVED;
 	conf->Software_mode_func = SOFTWARE_MODE_FUNCTION_DISABLED;

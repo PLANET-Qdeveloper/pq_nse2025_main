@@ -24,8 +24,9 @@ int init_wireless(){
     HAL_GPIO_WritePin(POW_COM_GPIO_Port, POW_COM_Pin, GPIO_PIN_SET);
     E22_Reset(&LoRaTX, &LoRaConf, 0);
     E22_Config_Init(&LoRaConf);
-    LoRaConf.Uart_baud_rate = UART_BAUDRATE_9600;
+    LoRaConf.Uart_baud_rate = UART_BAUDRATE_115200;
     LoRaConf.Air_data_rate = AIR_DATA_RATE_62500;
+    LoRaConf.Channel = 0x48;
     E22_Config_Set(&LoRaTX, &LoRaConf);
     uint8_t data[8] = {0};
     E22_Register_Read_all(&LoRaTX, &LoRaConf, data);

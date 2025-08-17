@@ -14,6 +14,8 @@
 #define BOOT_COUNT_FILE_NAME "boot_count.txt"
 #define LOG_FILE_NAME "log.txt"
 
+#define LFS_THREADSAFE
+
 #define NUMBER_OF_FILES        8                                       // max 32
 #define FILE_SIZE            8192
 #define FILE_DEBUG            1                                        // Show test file messages, disable for benchmark

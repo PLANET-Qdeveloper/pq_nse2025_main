@@ -15,16 +15,9 @@ int can_init(void){
     can_filter_sep.FilterIndex = 0;
     can_filter_sep.FilterType = FDCAN_FILTER_MASK;
     can_filter_sep.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    can_filter_sep.FilterID1 = 0x100;
-    can_filter_sep.FilterID2 = 0x7FF;
-    int comres = HAL_FDCAN_ConfigFilter(&hfdcan1, &can_filter_sep);
-    can_filter_sep.IdType = FDCAN_STANDARD_ID;
-    can_filter_sep.FilterIndex = 1;
-    can_filter_sep.FilterType = FDCAN_FILTER_MASK;
-    can_filter_sep.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
     can_filter_sep.FilterID1 = 0x000;
     can_filter_sep.FilterID2 = 0x000;
-    comres = HAL_FDCAN_ConfigFilter(&hfdcan1, &can_filter_sep);
+    int comres = HAL_FDCAN_ConfigFilter(&hfdcan1, &can_filter_sep);
     comres = HAL_FDCAN_Start(&hfdcan1);
     comres = HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
     return comres;
@@ -57,15 +50,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
     {
         
-    /* Reception Error */
-    Error_Handler();
     }
-    add_buffer_can(RxData, RxHeader.DataLength);
 
     if (HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK)
     {
-      /* Notification Error */
-      Error_Handler();
     }
   }
 }

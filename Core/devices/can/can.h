@@ -2,6 +2,7 @@
 #define __CAN_H__
 
 #include "main.h"
+#include "string.h"
 
 typedef struct {
     uint32_t id;

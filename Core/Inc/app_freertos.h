@@ -59,6 +59,7 @@ extern osThreadId_t communicationTaskHandle;
 extern osThreadId_t uartPollTaskHandle;
 extern osThreadId_t gnssTaskHandle;
 extern osThreadId_t sepTaskHandle;
+extern osThreadId_t fastDownlinkTaskHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -70,6 +71,7 @@ void StartCommunicationTask(void *argument);
 void StartUartPollTask(void *argument);
 void StartGnssTask(void *argument);
 void StartSepTask(void *argument);
+void StartFastDownlinkTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 

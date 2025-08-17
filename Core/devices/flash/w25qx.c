@@ -12,12 +12,22 @@ static uint8_t XSPI_WriteEnable(void);
 uint8_t XSPI_AutoPollingMemReady(void);
 static uint8_t XSPI_Configuration(void);
 
+// Lock and unlock functions for thread safety
+int stmlfs_hal_lock(const struct lfs_config *c);
+int stmlfs_hal_unlock(const struct lfs_config *c);
+
+
 const struct lfs_config stmconfig = {
     // block device operations
     .read  = stmlfs_hal_read,
     .prog  = stmlfs_hal_prog,
     .erase = stmlfs_hal_erase,
     .sync  = stmlfs_hal_sync,
+
+	#ifdef LFS_THREADSAFE
+    .lock  = stmlfs_hal_lock,
+    .unlock = stmlfs_hal_unlock,
+	#endif
 
     // block device configuration
     .read_size      = FS_PAGE_SIZE,
@@ -130,7 +140,21 @@ int stmlfs_hal_erase(const struct lfs_config *c, lfs_block_t block)
     return LFS_ERR_OK;
 }
 
+int stmlfs_hal_lock(const struct lfs_config *c)
+{
+    UNUSED(c);
+    // Enter critical section to lock the flash operations
+    taskENTER_CRITICAL();
+    return LFS_ERR_OK;
+}
 
+int stmlfs_hal_unlock(const struct lfs_config *c)
+{
+    UNUSED(c);
+    // Exit critical section to unlock the flash operations
+    taskEXIT_CRITICAL();
+    return LFS_ERR_OK;
+}
 
 int stmlfs_file_open(lfs_file_t *file, const char *path, int flags)
 {

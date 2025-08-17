@@ -8,6 +8,10 @@
 #include "bme280.h"
 
 #include "main.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os2.h"
 #include <stdio.h>
 #define BME280_API
 typedef struct{
