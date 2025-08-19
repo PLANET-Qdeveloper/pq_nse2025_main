@@ -2,7 +2,6 @@
 #define __IMU_H__
 
 #include "main.h"
-#include "logger.h"
 #include "bno055.h"
 
 

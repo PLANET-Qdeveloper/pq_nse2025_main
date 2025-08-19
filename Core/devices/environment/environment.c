@@ -1,5 +1,4 @@
 #include "environment.h"
-#include "logger.h"
 #include "arm_math.h"
 extern struct bme280_t bme280;
 
@@ -170,8 +169,8 @@ int init_env_data()
     BME280_SPI_routine();
     int comres = bme280_init(&bme280);
     if(comres != BME280_SUCCESS) {
-        output_log(LOG_LEVEL_ERROR, "bme280 init failed %d\n", comres);
-        Error_Handler();
+        
+
     }
     comres = bme280_set_power_mode(BME280_NORMAL_MODE);
     comres += bme280_set_oversamp_temperature(BME280_OVERSAMP_2X);

@@ -32,8 +32,7 @@ int init_imu(){
 
 
   if(comres != BNO055_SUCCESS) {
-    output_log(LOG_LEVEL_ERROR, "bno055 init failed %d\n", comres);
-    Error_Handler();
+    return -1;
   }
   return comres;
 }

@@ -4,7 +4,6 @@
 #include "main.h"
 #include "w25qx.h"
 #include "lfs.h"
-#include "logger.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -14,7 +13,6 @@
 #define BOOT_COUNT_FILE_NAME "boot_count.txt"
 #define LOG_FILE_NAME "log.txt"
 
-#define LFS_THREADSAFE
 
 #define NUMBER_OF_FILES        8                                       // max 32
 #define FILE_SIZE            8192
@@ -29,7 +27,7 @@ typedef struct {
 } flash_stream_t;
 
 int init_flash();
-int write_flash_log(uint8_t *data, uint32_t size);
+int write_flash_log(lfs_file_t *fp_log, uint8_t *data, uint32_t size);
 
 
 int flash_write(uint8_t *data, uint32_t size, const char *filename);

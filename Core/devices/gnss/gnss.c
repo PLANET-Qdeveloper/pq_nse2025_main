@@ -1,5 +1,4 @@
 #include "gnss.h"
-#include "logger.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"
@@ -50,19 +49,21 @@ int update_gnss_data()
     if (data_available_16 == 0) {
         return -1;
     }
-    if (data_available_16 > GNSS_I2C_NUM_BYTES) {
-        return -1;
-    }
+    do{
+        int data_len = data_available_16 > GNSS_I2C_NUM_BYTES ? GNSS_I2C_NUM_BYTES: data_available_16;
+        comres = HAL_I2C_Master_Receive(&hi2c2, GNSS_I2C_ADDR, data_buffer, data_len, 100);
+        comres = !lwgps_process(&gh, data_buffer, data_available_16);
+        if(!comres) {
+            gnss_data.latitude = gh.latitude;
+            gnss_data.longitude = gh.longitude;
+            gnss_data.altitude = gh.altitude;
+            gnss_data.num_sats = gh.sats_in_view;
+            gnss_data.hdop = gh.dop_h;
+        }
+        data_available_16 -= data_len;
+    }while(data_available_16 > 0);
+    
 
-    comres = HAL_I2C_Master_Receive(&hi2c2, GNSS_I2C_ADDR, data_buffer, data_available_16, 100);
-
-    comres = !lwgps_process(&gh, data_buffer, data_available_16);
-    if(!comres) {
-        gnss_data.latitude = gh.latitude;
-        gnss_data.longitude = gh.longitude;
-        gnss_data.altitude = gh.altitude;
-        gnss_data.num_sats = gh.sats_in_view;
-        gnss_data.hdop = gh.dop_h;
-    }
+    
     return comres;
 }

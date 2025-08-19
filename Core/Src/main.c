@@ -37,7 +37,6 @@
 #include "gnss.h"
 #include "environment.h"
 #include "wireless.h"
-#include "logger.h"
 #include "FreeRTOS.h"
 #include <stdio.h>
 #include <string.h>

@@ -28,7 +28,6 @@
 #include "wireless.h"
 #include "gnss.h"
 #include "state.h"
-#include "logger.h"
 #include "flash.h"
 #include "wireless.h"
 #include "float_print.h"
@@ -58,9 +57,15 @@ uint32_t last_loop_time = 0;
 uint32_t average_loop_time = 0;
 uint32_t average_loop_time_count = 0;
 
+lfs_file_t fp_log_main;
+#define MAIN_LOG_FILE_NAME "main.log"
+
 pq_com_format_t transmit_packet;
 uint8_t transmit_data[512];
 uint8_t packet_data[255];
+
+uint8_t log_data[2048];
+int log_data_size = 0;
 
 typedef struct{
   uint8_t key1;
@@ -238,19 +243,17 @@ void StartDefaultTask(void *argument)
 
   init_flash();
 
-  output_log(LOG_LEVEL_IMPORTANT, "Booted core function: %ld", HAL_GetTick());
-
 
   // init gnss
   HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_RESET);
   osDelay(100);
   HAL_GPIO_WritePin(RESET_GNSS_GPIO_Port, RESET_GNSS_Pin, GPIO_PIN_SET);
   init_gnss();
-  // init_imu();
+  init_imu();
   init_env_data();
   can_init();
   HAL_GPIO_WritePin(POW_VALVE_GPIO_Port, POW_VALVE_Pin, GPIO_PIN_SET);
-  output_log(LOG_LEVEL_IMPORTANT, "Init completed: %ld", HAL_GetTick());
+  stmlfs_file_open(&fp_log_main, MAIN_LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
   init_cplt = 1;
   
   
@@ -262,7 +265,7 @@ void StartDefaultTask(void *argument)
     volatile uint32_t *reg32 = (volatile uint32_t *)0xE0001004;
     *reg32 = 0x00;
     update_env_data();
-    // update_imu_data();
+    update_imu_data();
     state_check();
     if(wireless_data.data[0] == 'r'){
       state_update(STATE_READY);
@@ -396,7 +399,7 @@ void StartGnssTask(void *argument)
   for(;;)
   {
     update_gnss_data();
-    osDelay(1000);
+    osDelay(500);
   }
   /* USER CODE END gnssTask */
 }
@@ -453,11 +456,11 @@ void StartFastDownlinkTask(void *argument)
       downlink_data.altitude = gnss_data.altitude;
       downlink_data.latitude = gnss_data.latitude;
       downlink_data.longitude = gnss_data.longitude;
-      downlink_data.pressure = env_data.press;
+      downlink_data.pressure = env_data.press_filtered;
       downlink_data.temperature = env_data.temp;
       downlink_data.state = state.state;
       downlink_data.flags = (liftoff << 1) | nos;
-      downlink_data.time = HAL_GetTick();
+      downlink_data.time = average_loop_time * 1000 / average_loop_time_count;
       downlink_data.voltage = battery_data.voltage;
       downlink_data.x_acc = imu_data.accel_x;
       downlink_data.y_acc = imu_data.accel_y;
@@ -503,19 +506,25 @@ void StartFastDownlinkTask(void *argument)
           if(count == 0){
             send_data(transmit_data, i+1);
             if(state.state == STATE_BURNING || state.state == STATE_DECERELATION || state.state == STATE_FLIGHT || state.state == STATE_LANDED){
-              count = 10;
+              count = 5;
             }else{
-              count = 100;
+              count = 50;
             }
           }
-          write_flash_log(transmit_data, i+1);
+          log_data_size += i+1;
+          memcpy(log_data + log_data_size, transmit_data, i+1);
+          if(log_data_size > 1024){
+            write_flash_log(&fp_log_main, log_data, log_data_size);
+            memset(log_data, 0, sizeof(log_data));
+            log_data_size = 0;
+          }
           break;
         }else if (res == PQ_COM_FORMAT_ENCODE_ERROR_UNDEFINED){
           break;
         }
       }
       count--;
-      osDelay(10);
+      osDelay(20);
   }
   /* USER CODE END fastDownlinkTask */
 }

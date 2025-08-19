@@ -117,7 +117,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/devices/wireless/wireless.c
     ${CMAKE_SOURCE_DIR}/Core/devices/software/cli.c
     ${CMAKE_SOURCE_DIR}/Core/devices/software/state.c
-    ${CMAKE_SOURCE_DIR}/Core/devices/software/logger.c
     ${CMAKE_SOURCE_DIR}/Core/devices/battery/battery.c
     ${CMAKE_SOURCE_DIR}/Core/devices/can/can.c
     ${CMAKE_SOURCE_DIR}/Core/devices/gnss/gnss.c
@@ -156,6 +155,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     # Add user defined libraries
 )
 
+add_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE LFS_THREADSAFE)
 
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${CMAKE_PROJECT_NAME}> $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/${CMAKE_PROJECT_NAME}.bin

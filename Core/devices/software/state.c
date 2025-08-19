@@ -22,7 +22,7 @@ void state_check(){
         case STATE_SAFETY:
             break;
         case STATE_READY:
-            if(battery_data.voltage < 12.7 && previous_voltage > 12.7){
+            if(battery_data.voltage < 12.7){
                 voltage_count++;
                 if(voltage_count > 10){
                     state_update(STATE_BURNING);
