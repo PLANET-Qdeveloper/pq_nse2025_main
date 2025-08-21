@@ -9,6 +9,7 @@ float previous_voltage = 0;
 int voltage_count = 0;
 
 state_t state;
+int apogee_detected = 0;
 
 void state_init(state_enum init_state){
     state.state = STATE_SAFETY;
@@ -45,6 +46,7 @@ void state_check(){
             }
             if(env_data.delta_press * 100000 > 35.0f){
                 state_update(STATE_DECERELATION);
+                apogee_detected = 1;
             }
             break;
         case STATE_DECERELATION:

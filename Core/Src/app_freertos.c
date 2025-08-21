@@ -58,7 +58,10 @@ uint32_t average_loop_time = 0;
 uint32_t average_loop_time_count = 0;
 
 lfs_file_t fp_log_main;
-#define MAIN_LOG_FILE_NAME "main.log"
+#define MAIN_LOG_FILE_NAME "main_data.log"
+
+
+extern int apogee_detected;
 
 pq_com_format_t transmit_packet;
 uint8_t transmit_data[512];
@@ -111,6 +114,7 @@ typedef struct{
 
 int init_cplt = 0;
 int liftoff = 0;
+int lo_trig = 0;
 int nos = 0;
 /* USER CODE END PTD */
 
@@ -241,7 +245,7 @@ void StartDefaultTask(void *argument)
 
   init_wireless();
 
-  init_flash();
+  //init_flash();
 
 
   // init gnss
@@ -253,7 +257,7 @@ void StartDefaultTask(void *argument)
   init_env_data();
   can_init();
   HAL_GPIO_WritePin(POW_VALVE_GPIO_Port, POW_VALVE_Pin, GPIO_PIN_SET);
-  stmlfs_file_open(&fp_log_main, MAIN_LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
+  //stmlfs_file_open(&fp_log_main, MAIN_LOG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND);
   init_cplt = 1;
   
   
@@ -282,6 +286,7 @@ void StartDefaultTask(void *argument)
       state_update(STATE_BURNING);
     }else if(wireless_data.data[0] == 'l'){
       liftoff = 1;
+      lo_trig = 1;
     }
     memset(wireless_data.data, 0, sizeof(wireless_data.data));
     update_battery_data();
@@ -368,6 +373,7 @@ void StartUartPollTask(void *argument)
       HAL_UART_Receive(&huart2, data, 1, 1);
       if(data[0] == 'L'){
         liftoff = 1;
+        lo_trig = 1;
       }else if(data[0] == 'E'){
         state_update(STATE_EMERGENCY);
         nos = 1;
@@ -459,7 +465,7 @@ void StartFastDownlinkTask(void *argument)
       downlink_data.pressure = env_data.press_filtered;
       downlink_data.temperature = env_data.temp;
       downlink_data.state = state.state;
-      downlink_data.flags = (liftoff << 1) | nos;
+      downlink_data.flags = (apogee_detected << 2) | (lo_trig << 1) | nos;
       downlink_data.time = average_loop_time * 1000 / average_loop_time_count;
       downlink_data.voltage = battery_data.voltage;
       downlink_data.x_acc = imu_data.accel_x;
@@ -514,7 +520,7 @@ void StartFastDownlinkTask(void *argument)
           log_data_size += i+1;
           memcpy(log_data + log_data_size, transmit_data, i+1);
           if(log_data_size > 1024){
-            write_flash_log(&fp_log_main, log_data, log_data_size);
+            //write_flash_log(&fp_log_main, log_data, log_data_size);
             memset(log_data, 0, sizeof(log_data));
             log_data_size = 0;
           }
